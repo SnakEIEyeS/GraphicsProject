@@ -20,10 +20,7 @@ namespace Engine
 			{}
 		};
 
-		static const float ColorDelta = 0.01f;
-		const float ColorDeltaEpsilon = 0.001f;
-		static Engine::Math::Vector3 ClearColorDeltaVec(0.f, 0.f, ColorDelta);
-		static Color ClearColor(0.f, 0.f, 0.f, 1.f);
+		
 
 		bool Startup();
 		bool Shutdown();

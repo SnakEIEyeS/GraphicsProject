@@ -8,6 +8,11 @@ namespace Engine
 {
 	namespace Renderer
 	{
+		static const float ColorDelta = 0.01f * (1/60.0f);
+		const float ColorDeltaEpsilon = 0.0001f;
+		static Engine::Math::Vector3 ClearColorDeltaVec(0.f, 0.f, ColorDelta);
+		static Color ClearColor(0.f, 0.f, 0.f, 1.f);
+
 		bool Startup()
 		{
 			std::cout << "Renderer Startup\n";
