@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Engine/Engine.h"
+#include "Timer/FrameTime.h"
 #include "Input/Input.h"
 #include "Renderer/Renderer.h"
 
@@ -13,7 +14,7 @@ int main(void)
 	Engine::Input::Startup();
 
 	GLFWwindow* window;
-	const char* WindowName = "Shantanu's Window: Hello World";
+	const char* WindowName = "Shantanu's Window: Hello World!";
 	const int WindowWidth = 800;
 	const int WindowHeight = 600;
 
@@ -33,16 +34,19 @@ int main(void)
 	glfwMakeContextCurrent(window);
 
 	Engine::Renderer::Startup();
+	Engine::Timing::CalcCPUFrequency();
+	float dt;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
-		/* Render here */
-		//glClearColor(0.f, 0.f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		 dt = Engine::Timing::GetLastFrameTime_ms();
 
-		Engine::Input::Update(window);
-		Engine::Renderer::Update(window);
+		/* Render here */
+		glClear(GL_COLOR_BUFFER_BIT);
+		
+		Engine::Input::Update(window, dt);
+		Engine::Renderer::Update(window, dt);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
@@ -59,3 +63,9 @@ int main(void)
     
 	return 0;
 }
+
+
+
+/*References:
+https://www.glfw.org/documentation.html for GLFW startup, main loop, termination and window creation
+*/

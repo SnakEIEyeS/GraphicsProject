@@ -22,7 +22,7 @@ namespace Engine
 		}
 
 
-		void Update(GLFWwindow * window)
+		void Update(GLFWwindow * window, float i_FrameTime)
 		{
 			assert(window);
 			ProcessInput(window);
