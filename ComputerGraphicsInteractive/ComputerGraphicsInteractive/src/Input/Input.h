@@ -9,7 +9,7 @@ namespace Engine
 		bool Startup();
 		bool Shutdown();
 
-		void Update(GLFWwindow* window);
+		void Update(GLFWwindow* window, float i_FrameTime);
 		void ProcessInput(GLFWwindow * window);
 	} //namespace Input
 } //namespace Engine
