@@ -8,6 +8,8 @@
 #include "Input/Input.h"
 #include "Renderer/Renderer.h"
 
+#include "cyCodeBase/cyGL.h"
+#include "cyCodeBase/cyMatrix.h"
 #include "cyCodeBase/cyTriMesh.h"
 
 
@@ -50,9 +52,38 @@ int main(void)
 	Engine::Timing::CalcCPUFrequency();
 	float dt;
 
+	//VAO
+	unsigned int vertexArrayID;
+	glGenVertexArrays(1, &vertexArrayID);
+	glBindVertexArray(vertexArrayID);
+
 	//Loading obj
 	cyTriMesh* TriMeshObj = new cyTriMesh();
 	TriMeshObj->LoadFromFileObj("../Resources/teapot.obj", false);
+
+	//VBO
+	unsigned int vertexBufferID;
+	glGenBuffers(1, &vertexBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->V(0)) * TriMeshObj->NV(), const_cast<void*>(reinterpret_cast<void*>(&TriMeshObj->V(0))), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(*TriMeshObj), const_cast<void*>(reinterpret_cast<void*>(sizeof(TriMeshObj->V(0)) * TriMeshObj->NV())));
+
+	cyGLSLProgram* TeapotProgram = new cyGLSLProgram();
+	TeapotProgram->BuildFiles("res/BasicVS.shader", "res/BasicFS.shader", nullptr, nullptr, nullptr);
+	TeapotProgram->Bind();
+
+	cyMatrix4f TransformMatrix(
+		0.05f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.05f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.05f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+	float UniformMatrix[16];
+	TransformMatrix.Get(UniformMatrix);
+
+	TeapotProgram->SetUniformMatrix4("u_Transformation", UniformMatrix);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -64,6 +95,11 @@ int main(void)
 		
 		Engine::Input::Update(window, dt);
 		Engine::Renderer::Update(window, dt);
+
+		//Drawing code
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+		glDrawArrays(GL_TRIANGLES, 0, TriMeshObj->NV());
+		//Drawing code end
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);

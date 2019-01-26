@@ -171,6 +171,8 @@
     <ClInclude Include="src\Timer\FrameTime.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\BasicFS.shader" />
+    <None Include="res\BasicVS.shader" />
     <None Include="src\cyCodeBase\.editorconfig" />
     <None Include="src\cyCodeBase\LICENSE" />
     <None Include="src\cyCodeBase\README.md" />

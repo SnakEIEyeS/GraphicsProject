@@ -27,7 +27,7 @@ namespace Engine
 
 		void Update(GLFWwindow* window, float i_FrameTime)
 		{
-			AnimateClearColor(i_FrameTime);
+			//AnimateClearColor(i_FrameTime);
 		}
 
 		void AnimateClearColor(float i_FrameTime)

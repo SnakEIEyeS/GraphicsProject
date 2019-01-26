@@ -124,5 +124,7 @@
     <None Include="src\cyCodeBase\.editorconfig" />
     <None Include="src\cyCodeBase\LICENSE" />
     <None Include="src\cyCodeBase\README.md" />
+    <None Include="res\BasicVS.shader" />
+    <None Include="res\BasicFS.shader" />
   </ItemGroup>
 </Project>

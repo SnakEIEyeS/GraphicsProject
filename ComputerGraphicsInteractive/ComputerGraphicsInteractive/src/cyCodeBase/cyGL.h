@@ -82,6 +82,9 @@
 #include <sstream>
 #include <assert.h>
 
+#include <GL/glfw3.h>
+#include <GL/GLU.h>
+
 //-------------------------------------------------------------------------------
 
 // These includes are needed for checking the OpenGL context.
