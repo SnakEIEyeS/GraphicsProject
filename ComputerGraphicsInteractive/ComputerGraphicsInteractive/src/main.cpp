@@ -1,3 +1,4 @@
+#include <glad/glad.h>
 #include <GL/glfw3.h>
 
 #include <iostream>
@@ -6,6 +7,8 @@
 #include "Timer/FrameTime.h"
 #include "Input/Input.h"
 #include "Renderer/Renderer.h"
+
+#include "cyCodeBase/cyTriMesh.h"
 
 
 int main(void)
@@ -20,8 +23,13 @@ int main(void)
 
 	/* Initialize the library */
 	if (!glfwInit())
+	{
 		return -1;
+	}	
 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(WindowWidth, WindowHeight, WindowName, NULL, NULL);
 	if (!window)
@@ -32,10 +40,19 @@ int main(void)
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+	    std::cout << "Failed to initialize GLAD" << std::endl;
+	    return -1;
+	}
 
 	Engine::Renderer::Startup();
 	Engine::Timing::CalcCPUFrequency();
 	float dt;
+
+	//Loading obj
+	cyTriMesh* TriMeshObj = new cyTriMesh();
+	TriMeshObj->LoadFromFileObj("../Resources/teapot.obj", false);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -68,4 +85,5 @@ int main(void)
 
 /*References:
 https://www.glfw.org/documentation.html for GLFW startup, main loop, termination and window creation
+https://learnopengl.com/Getting-started/Hello-Window for glad initialization
 */
