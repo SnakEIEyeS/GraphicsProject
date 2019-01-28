@@ -2,6 +2,7 @@
 #include <GL/glfw3.h>
 
 #include <iostream>
+#include <math.h>
 
 #include "Engine/Engine.h"
 #include "Timer/FrameTime.h"
@@ -74,14 +75,27 @@ int main(void)
 	TeapotProgram->BuildFiles("res/BasicVS.shader", "res/BasicFS.shader", nullptr, nullptr, nullptr);
 	TeapotProgram->Bind();
 
-	cyMatrix4f TransformMatrix(
-		0.05f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.05f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.05f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
+	float fovy = 115.f;
+	float FOV = 1/tan(fovy);
+	float aspect = 2.f; //2:1
+	float zNear = 1.f;
+	float zFar = 20.f;
+
+	cyMatrix4f CameraMatrix(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.f, 100.f, 1.0f
 	);
+	cyMatrix4f ProjectionMatrix(
+		FOV/aspect, 0.0f, 0.0f, 0.0f,
+		0.0f, FOV, 0.0f, 0.0f,
+		0.0f, 0.0f, (zFar + zNear)/(zNear - zFar), (2.f * zFar * zNear)/(zNear - zFar),
+		0.0f, 0.0f, -1.0f, 0.0f
+	);
+	ProjectionMatrix = ProjectionMatrix * CameraMatrix;
 	float UniformMatrix[16];
-	TransformMatrix.Get(UniformMatrix);
+	ProjectionMatrix.Get(UniformMatrix);
 
 	TeapotProgram->SetUniformMatrix4("u_Transformation", UniformMatrix);
 
@@ -94,11 +108,13 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		Engine::Input::Update(window, dt);
-		Engine::Renderer::Update(window, dt);
+		//Engine::Renderer::Update(window, dt);
 
 		//Drawing code
+		glBindVertexArray(vertexArrayID);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
 		glDrawArrays(GL_TRIANGLES, 0, TriMeshObj->NV());
+		//glDrawArrays(GL_TRIANGLES, 2, 50);
 		//Drawing code end
 
 		/* Swap front and back buffers */
