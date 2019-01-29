@@ -1,14 +1,18 @@
 #pragma once
 
+#include <glad/glad.h>
 #include <GL/glfw3.h>
 //struct GLFWwindow;
 
+#include "../cyCodeBase/cyGL.h"
 #include "../Math/Vector3.h"
 
 namespace Engine
 {
-	namespace Renderer
+	namespace Rendering
 	{
+		static cyGLSLProgram* cyGraphicsProgram = nullptr;
+		
 		struct Color
 		{
 			float red, green, blue, alpha;
@@ -27,5 +31,10 @@ namespace Engine
 
 		void Update(GLFWwindow* window, float i_FrameTime);
 		void AnimateClearColor(float i_FrameTime);
+
+		cyGLSLProgram* GetGLProgram();
+		bool BuildAndUseProgram();
+
+		
 	}
 }

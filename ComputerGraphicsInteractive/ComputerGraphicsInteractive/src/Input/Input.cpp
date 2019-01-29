@@ -36,6 +36,8 @@ namespace Engine
 			{
 				glfwSetWindowShouldClose(window, true);
 			}
+
+			
 		}
 
 	}
