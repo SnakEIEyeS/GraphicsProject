@@ -1,6 +1,6 @@
 #version 330 core
 
-layout (location = 0) in vec3 i_Pos;
+layout(location = 0) in vec3 i_Pos;
 
 uniform mat4 u_Transformation;
 out vec4 o_ColorVS;

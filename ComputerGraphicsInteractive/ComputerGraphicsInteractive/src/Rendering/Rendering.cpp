@@ -1,13 +1,19 @@
-#include "Renderer.h"
+#include "Rendering.h"
 
+#include <assert.h>
 #include <iostream>
 
+#include "../cyCodeBase/cyGL.h"
 #include "../Math/MathUtility.h"
+#include "Renderer.h"
 
 namespace Engine
 {
-	namespace Renderer
+	namespace Rendering
 	{
+		static const char* VertexShaderFile = "res/BasicVS.shader";
+		static const char* FragmentShaderFile = "res/BasicFS.shader";
+
 		static const float ColorDelta = 0.00025f;
 		//const float ColorDeltaEpsilon = 0.0001f;
 		static Engine::Math::Vector3 ClearColorDeltaVec(0.f, 0.f, ColorDelta);
@@ -27,7 +33,13 @@ namespace Engine
 
 		void Update(GLFWwindow* window, float i_FrameTime)
 		{
-			//AnimateClearColor(i_FrameTime);
+			AnimateClearColor(i_FrameTime);
+
+			if (glfwGetKey(window, GLFW_KEY_F6) == GLFW_PRESS)
+			{
+				std::cout << "Recompiling shaders...\n";
+				Engine::Rendering::BuildAndUseProgram();
+			}
 		}
 
 		void AnimateClearColor(float i_FrameTime)
@@ -84,5 +96,24 @@ namespace Engine
 				ClearColorDeltaVec.z = -ClearColorDeltaVec.z;
 			}
 		}
+
+		cyGLSLProgram * GetGLProgram()
+		{
+			if (!cyGraphicsProgram)
+			{
+				cyGraphicsProgram = new cyGLSLProgram();
+			}
+			return cyGraphicsProgram;
+		}
+
+		bool BuildAndUseProgram()
+		{
+			bool built = GetGLProgram()->BuildFiles(VertexShaderFile, FragmentShaderFile, nullptr, nullptr, nullptr);
+			assert(built);
+			GetGLProgram()->Bind();
+			return true;
+		}
+
+
 	}
 }
