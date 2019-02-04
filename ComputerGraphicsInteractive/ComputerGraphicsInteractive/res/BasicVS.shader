@@ -7,8 +7,9 @@ out vec4 o_ColorVS;
 
 void main()
 {
-	gl_Position = u_Transformation * vec4(i_Pos, 1);
+	gl_Position = u_Transformation * vec4(i_Pos, 1.f);
+	//gl_Position = vec4(i_Pos.x, i_Pos.y, i_Pos.z, 1.f);
 	//vec3 temp = 0.05f * i_Pos;
 	//gl_Position = vec4(temp, 1.f);
-	o_ColorVS = vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	o_ColorVS = vec4(1.f, 0.f, 0.f, 1.0f);
 }
