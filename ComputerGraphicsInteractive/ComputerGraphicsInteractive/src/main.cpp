@@ -57,7 +57,7 @@ int main(void)
 	unsigned int vertexArrayID;
 	glGenVertexArrays(1, &vertexArrayID);
 	glBindVertexArray(vertexArrayID);
-
+	
 	//Loading obj
 	cyTriMesh* TriMeshObj = new cyTriMesh();
 	TriMeshObj->LoadFromFileObj("../Resources/teapot.obj", false);
@@ -67,14 +67,13 @@ int main(void)
 	glGenBuffers(1, &vertexBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->V(0)) * TriMeshObj->NV(), const_cast<void*>(reinterpret_cast<void*>(&TriMeshObj->V(0))), GL_STATIC_DRAW);
+	
+	
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->V(0)), const_cast<void*>(reinterpret_cast<void*>(sizeof(TriMeshObj->V(0)) * TriMeshObj->NV())));
+	//std::cout << sizeof(TriMeshObj->V(0)) * TriMeshObj->NV() << "\n";
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->V(0)), (const void*)0);
+    glEnableVertexAttribArray(0);
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(*TriMeshObj), const_cast<void*>(reinterpret_cast<void*>(sizeof(TriMeshObj->V(0)) * TriMeshObj->NV())));
-
-	/*cyGLSLProgram* TeapotProgram = new cyGLSLProgram();
-	bool built = TeapotProgram->BuildFiles("res/BasicVS.shader", "res/BasicFS.shader", nullptr, nullptr, nullptr);
-	assert(built);
-	TeapotProgram->Bind();*/
 	Engine::Rendering::BuildAndUseProgram();
 
 	float fovy = 45.f;
@@ -87,20 +86,27 @@ int main(void)
 	cyMatrix4f CameraMatrix(
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 30.0f,
+		0.0f, 0.0f, 1.0f, -30.0f,
 		0.0f, 0.f, 0.f, 1.0f
 	);
-	cyMatrix4f ProjectionMatrix(
+	cyMatrix4f const ProjectionMatrix(
 		FOV/aspect, 0.0f,                          0.0f,                                0.0f,
 		0.0f,       FOV,                           0.0f,                                0.0f,
 		0.0f,       0.0f, (zFar + zNear)/(zNear - zFar), (2.f * zFar * zNear)/(zNear - zFar),
 		0.0f,       0.0f,                         -1.0f,                                 0.0f
 	);
-	ProjectionMatrix = ProjectionMatrix * CameraMatrix;
-	float UniformMatrix[16];
-	ProjectionMatrix.Get(UniformMatrix);
 
-	Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", UniformMatrix);
+	cyMatrix4f FinalTransformMatrix;
+	FinalTransformMatrix = ProjectionMatrix * CameraMatrix;
+
+	Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", FinalTransformMatrix.data);
+
+	cyMatrix4f const RotateMatrix(
+		cos(0.005f), 0.0f, sin(0.005f), 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		-sin(0.005f), 0.0f, cos(0.005f), 0.0f,
+		0.0f, 0.f, 0.f, 1.0f
+	);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -109,6 +115,10 @@ int main(void)
 
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		CameraMatrix *= RotateMatrix;
+		FinalTransformMatrix = ProjectionMatrix * CameraMatrix;
+		Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", FinalTransformMatrix.data);
 		
 		Engine::Input::Update(window, dt);
 		Engine::Rendering::Update(window, dt);
@@ -117,7 +127,6 @@ int main(void)
 		glBindVertexArray(vertexArrayID);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
 		glDrawArrays(GL_TRIANGLES, 0, TriMeshObj->NV());
-		//glDrawArrays(GL_TRIANGLES, 2, 50);
 		//Drawing code end
 
 		/* Swap front and back buffers */
