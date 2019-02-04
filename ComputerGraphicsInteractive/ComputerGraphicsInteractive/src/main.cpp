@@ -86,7 +86,7 @@ int main(void)
 	cyMatrix4f CameraMatrix(
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, -30.0f,
+		0.0f, 0.0f, 1.0f, -27.0f,
 		0.0f, 0.f, 0.f, 1.0f
 	);
 	cyMatrix4f const ProjectionMatrix(
@@ -108,6 +108,24 @@ int main(void)
 		0.0f, 0.f, 0.f, 1.0f
 	);
 
+	cyMatrix4f const XRotateMatrix(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, cos(-45.f), -sin(-45.f), 0.0f,
+		0.0f, sin(-45.f), cos(-45.f), 0.0f,
+		0.0f, 0.f, 0.f, 1.0f
+	);
+
+	cyMatrix4f const YRotateMatrix(
+		cos(-45.f), 0.0f, sin(-45.f), 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		-sin(-45.f), 0.0f, cos(-45.f), 0.0f,
+		0.0f, 0.f, 0.f, 1.0f
+	);
+
+	FinalTransformMatrix = ProjectionMatrix * CameraMatrix * XRotateMatrix;
+
+	Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", FinalTransformMatrix.data);
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
@@ -116,9 +134,11 @@ int main(void)
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		CameraMatrix *= RotateMatrix;
+		/*CameraMatrix *= RotateMatrix;
 		FinalTransformMatrix = ProjectionMatrix * CameraMatrix;
 		Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", FinalTransformMatrix.data);
+		*/
+		
 		
 		Engine::Input::Update(window, dt);
 		Engine::Rendering::Update(window, dt);
@@ -126,7 +146,8 @@ int main(void)
 		//Drawing code
 		glBindVertexArray(vertexArrayID);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-		glDrawArrays(GL_TRIANGLES, 0, TriMeshObj->NV());
+		//glDrawArrays(GL_TRIANGLES, 0, TriMeshObj->NV());
+		glDrawElements(GL_TRIANGLES, TriMeshObj->NF() * sizeof(TriMeshObj->F(0))/sizeof(TriMeshObj->F(0).v[0]), GL_UNSIGNED_INT, &TriMeshObj->F(0));
 		//Drawing code end
 
 		/* Swap front and back buffers */
