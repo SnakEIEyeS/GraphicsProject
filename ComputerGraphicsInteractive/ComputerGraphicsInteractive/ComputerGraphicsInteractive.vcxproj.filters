@@ -138,5 +138,7 @@
     <None Include="src\cyCodeBase\README.md" />
     <None Include="res\BasicVS.shader" />
     <None Include="res\BasicFS.shader" />
+    <None Include="res\LightsShadingFS.shader" />
+    <None Include="res\LightsShadingVS.shader" />
   </ItemGroup>
 </Project>

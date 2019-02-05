@@ -13,6 +13,13 @@
 #include "cyCodeBase/cyMatrix.h"
 #include "cyCodeBase/cyTriMesh.h"
 
+const float PI = 3.14f;
+
+enum VertexInfo
+{
+	VertexPosition = 0,
+	VertexNormal = 1
+};
 
 int main(void)
 {
@@ -63,16 +70,24 @@ int main(void)
 	TriMeshObj->LoadFromFileObj("../Resources/teapot.obj", false);
 
 	//VBO
-	unsigned int vertexBufferID;
-	glGenBuffers(1, &vertexBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+	unsigned int vertexPosBufferID;
+	glGenBuffers(1, &vertexPosBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexPosBufferID);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->V(0)) * TriMeshObj->NV(), const_cast<void*>(reinterpret_cast<void*>(&TriMeshObj->V(0))), GL_STATIC_DRAW);
 	
+	glEnableVertexAttribArray(VertexInfo::VertexPosition);
+	glVertexAttribPointer(VertexInfo::VertexPosition, 3, GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->V(0)), (const void*)0);
+    
+
+	//Vertex Normals
+	unsigned int vertexNormalBufferID;
+	glGenBuffers(1, &vertexNormalBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexNormalBufferID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->VN(0))*TriMeshObj->NVN(), const_cast<void*>(reinterpret_cast<void*>(&TriMeshObj->VN(0))), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(VertexInfo::VertexNormal);
+	glVertexAttribPointer(VertexInfo::VertexNormal, sizeof(TriMeshObj->VN(0)) / sizeof(TriMeshObj->VN(0).x), GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->VN(0)), (const void*)0);
 	
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->V(0)), const_cast<void*>(reinterpret_cast<void*>(sizeof(TriMeshObj->V(0)) * TriMeshObj->NV())));
-	//std::cout << sizeof(TriMeshObj->V(0)) * TriMeshObj->NV() << "\n";
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->V(0)), (const void*)0);
-    glEnableVertexAttribArray(0);
 
 	Engine::Rendering::BuildAndUseProgram();
 
@@ -110,21 +125,30 @@ int main(void)
 
 	cyMatrix4f const XRotateMatrix(
 		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, cos(-45.f), -sin(-45.f), 0.0f,
-		0.0f, sin(-45.f), cos(-45.f), 0.0f,
+		0.0f, cos(-PI / 4), -sin(-PI / 4), 0.0f,
+		0.0f, sin(-PI / 4), cos(-PI / 4), 0.0f,
 		0.0f, 0.f, 0.f, 1.0f
 	);
 
 	cyMatrix4f const YRotateMatrix(
-		cos(-45.f), 0.0f, sin(-45.f), 0.0f,
+		cos(PI / 8), 0.0f, sin(PI / 8), 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
-		-sin(-45.f), 0.0f, cos(-45.f), 0.0f,
+		-sin(PI / 8), 0.0f, cos(PI / 8), 0.0f,
 		0.0f, 0.f, 0.f, 1.0f
 	);
 
-	FinalTransformMatrix = ProjectionMatrix * CameraMatrix * XRotateMatrix;
+	cyMatrix4f const ZRotateMatrix(
+		cos(PI / 4), -sin(PI / 4), 0.0f, 0.0f,
+		sin(PI / 4), cos(PI / 4), 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.f, 0.f, 1.0f
+	);
 
-	Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", FinalTransformMatrix.data);
+	//FinalTransformMatrix = ProjectionMatrix * CameraMatrix * XRotateMatrix;
+	//Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", FinalTransformMatrix.data);
+	CameraMatrix *= XRotateMatrix;
+	Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Projection", ProjectionMatrix.data);
+	Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Camera", CameraMatrix.data);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -134,10 +158,9 @@ int main(void)
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		/*CameraMatrix *= RotateMatrix;
-		FinalTransformMatrix = ProjectionMatrix * CameraMatrix;
-		Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", FinalTransformMatrix.data);
-		*/
+		//CameraMatrix *= RotateMatrix;
+		//Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Camera", CameraMatrix.data);
+		
 		
 		
 		Engine::Input::Update(window, dt);
@@ -145,7 +168,7 @@ int main(void)
 
 		//Drawing code
 		glBindVertexArray(vertexArrayID);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+		//glBindBuffer(GL_ARRAY_BUFFER, vertexPosBufferID);
 		//glDrawArrays(GL_TRIANGLES, 0, TriMeshObj->NV());
 		glDrawElements(GL_TRIANGLES, TriMeshObj->NF() * sizeof(TriMeshObj->F(0))/sizeof(TriMeshObj->F(0).v[0]), GL_UNSIGNED_INT, &TriMeshObj->F(0));
 		//Drawing code end
