@@ -11,8 +11,8 @@ namespace Engine
 {
 	namespace Rendering
 	{
-		static const char* VertexShaderFile = "res/BasicVS.shader";
-		static const char* FragmentShaderFile = "res/BasicFS.shader";
+		static const char* VertexShaderFile = "res/LightsShadingVS.shader";
+		static const char* FragmentShaderFile = "res/LightsShadingFS.shader";
 
 		static const float ColorDelta = 0.00025f;
 		//const float ColorDeltaEpsilon = 0.0001f;
@@ -33,7 +33,7 @@ namespace Engine
 
 		void Update(GLFWwindow* window, float i_FrameTime)
 		{
-			AnimateClearColor(i_FrameTime);
+			//AnimateClearColor(i_FrameTime);
 
 			if (glfwGetKey(window, GLFW_KEY_F6) == GLFW_PRESS)
 			{
