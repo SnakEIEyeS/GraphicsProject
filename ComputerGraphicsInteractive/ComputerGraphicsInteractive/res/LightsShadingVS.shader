@@ -9,6 +9,7 @@ uniform vec3 u_LightPosition;
 
 out vec4 o_ColorVS;
 out float o_cosTheta;
+out float o_SpecularComponent;
 
 void main()
 {
@@ -23,7 +24,7 @@ void main()
 
 	o_cosTheta = clamp(dot(LightDirection_CameraSpace, VertexNormal), 0.f, 1.f);
 	vec4 HalfVector = normalize(vec4(vec3(ViewDirection_CameraSpace + LightDirection_CameraSpace), 0.f));
-	float o_SpecularComponent = dot(HalfVector, VertexNormal);
+	o_SpecularComponent = dot(HalfVector, VertexNormal);
 	//o_ColorVS = vec4(1.f, 0.f, 0.f, 1.0f);
 	o_ColorVS = transpose(inverse(u_Camera)) * vec4(i_Normal, 1.f);
 }
