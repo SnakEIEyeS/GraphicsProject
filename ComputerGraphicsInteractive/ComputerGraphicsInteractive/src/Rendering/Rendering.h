@@ -7,8 +7,14 @@
 #include "../cyCodeBase/cyGL.h"
 #include "../Math/Vector3.h"
 
+
 namespace Engine
 {
+	namespace Lighting
+	{
+		class PointLight;
+	}
+
 	namespace Rendering
 	{
 		static cyGLSLProgram* cyGraphicsProgram = nullptr;
@@ -35,6 +41,10 @@ namespace Engine
 		cyGLSLProgram* GetGLProgram();
 		bool BuildAndUseProgram();
 
-		
+		static Engine::Lighting::PointLight* RenderPointLight = nullptr;
+		Engine::Lighting::PointLight& GetRenderPointLight();
+
+		static const float AmbientConstant = 0.1f;
+		static const float SpecularAlpha = 5.f;
 	}
 }

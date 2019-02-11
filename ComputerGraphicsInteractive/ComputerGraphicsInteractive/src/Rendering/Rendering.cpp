@@ -4,7 +4,9 @@
 #include <iostream>
 
 #include "../cyCodeBase/cyGL.h"
+#include "../cyCodeBase/cyPoint.h"
 #include "../Math/MathUtility.h"
+#include "../LightSource/PointLight.h"
 #include "Renderer.h"
 
 namespace Engine
@@ -18,6 +20,8 @@ namespace Engine
 		//const float ColorDeltaEpsilon = 0.0001f;
 		static Engine::Math::Vector3 ClearColorDeltaVec(0.f, 0.f, ColorDelta);
 		static Color ClearColor(0.f, 0.f, 0.f, 1.f);
+
+		static const cyPoint4f PointLightCreatePosition(cyPoint4f(0.f, -10.f, 40.f, 1.f));
 
 		bool Startup()
 		{
@@ -114,6 +118,16 @@ namespace Engine
 			return true;
 		}
 
+
+		Engine::Lighting::PointLight& GetRenderPointLight()
+		{
+			if (!RenderPointLight)
+			{
+				RenderPointLight = new Engine::Lighting::PointLight(PointLightCreatePosition);
+			}
+
+			return *RenderPointLight;
+		}
 
 	}
 }
