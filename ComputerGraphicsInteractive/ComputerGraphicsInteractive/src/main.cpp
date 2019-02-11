@@ -7,10 +7,12 @@
 #include "Engine/Engine.h"
 #include "Timer/FrameTime.h"
 #include "Input/Input.h"
+#include "LightSource/PointLight.h"
 #include "Rendering/Rendering.h"
 
 #include "cyCodeBase/cyGL.h"
 #include "cyCodeBase/cyMatrix.h"
+#include "cyCodeBase//cyPoint.h"
 #include "cyCodeBase/cyTriMesh.h"
 
 const float PI = 3.14f;
@@ -150,21 +152,33 @@ int main(void)
 	Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Projection", ProjectionMatrix.data);
 	Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Camera", CameraMatrix.data);
 
+	
+
+	glEnable(GL_DEPTH_TEST);
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
 		 dt = Engine::Timing::GetLastFrameTime_ms();
 
 		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
+		 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//CameraMatrix *= RotateMatrix;
 		//Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Camera", CameraMatrix.data);
 		
 		
-		
 		Engine::Input::Update(window, dt);
 		Engine::Rendering::Update(window, dt);
+
+		const cyPoint3f PointLightPos3 = Engine::Rendering::GetRenderPointLight().GetPosition().GetNonHomogeneous();
+		//float APointLightUniform[3];
+		//PointLightPos3.Get(APointLightUniform);
+		Engine::Rendering::GetGLProgram()->SetUniform("u_LightPosition", PointLightPos3);
+		Engine::Rendering::GetGLProgram()->SetUniform("u_DiffuseColor", cyPoint4f(1.f, 0.f, 0.f, 1.f));
+		Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularColor", cyPoint4f(1.f, 1.f, 1.f, 1.f));
+		Engine::Rendering::GetGLProgram()->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
+		Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularAlpha", Engine::Rendering::SpecularAlpha);
 
 		//Drawing code
 		glBindVertexArray(vertexArrayID);
