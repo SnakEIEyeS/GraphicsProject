@@ -139,6 +139,7 @@
     <ClCompile Include="src\Engine\Engine.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Input\Input.cpp" />
+    <ClCompile Include="src\LightSource\PointLight.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Math\MathUtility.cpp" />
     <ClCompile Include="src\Rendering\Renderer.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="src\cyCodeBase\cyTriMesh.h" />
     <ClInclude Include="src\Engine\Engine.h" />
     <ClInclude Include="src\Input\Input.h" />
+    <ClInclude Include="src\LightSource\PointLight.h" />
     <ClInclude Include="src\Math\MathUtility.h" />
     <ClInclude Include="src\Math\Vector3.h" />
     <ClInclude Include="src\Math\Vector4.h" />
@@ -177,6 +179,8 @@
   <ItemGroup>
     <None Include="res\BasicFS.shader" />
     <None Include="res\BasicVS.shader" />
+    <None Include="res\LightsShadingFS.shader" />
+    <None Include="res\LightsShadingVS.shader" />
     <None Include="src\cyCodeBase\.editorconfig" />
     <None Include="src\cyCodeBase\LICENSE" />
     <None Include="src\cyCodeBase\README.md" />
