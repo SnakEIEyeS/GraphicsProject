@@ -58,6 +58,19 @@ int main(void)
 	    return -1;
 	}
 
+	//Check for Anisotropic Filtering
+	if (glfwExtensionSupported("GL_EXT_texture_filter_anisotropic"))
+	{
+		std::cout << "Anisotropic filtering is supported\n";
+		float AnisoLevel;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &AnisoLevel);
+		std::cout << "Anisotropic filtering max level: " << AnisoLevel << "\n";
+	}
+	else
+	{
+		std::cout << "No Anisotropic Filtering support\n";
+	}
+
 	Engine::Rendering::Startup();
 	Engine::Timing::CalcCPUFrequency();
 	float dt;
@@ -70,6 +83,11 @@ int main(void)
 	//Loading obj
 	cyTriMesh* TriMeshObj = new cyTriMesh();
 	TriMeshObj->LoadFromFileObj("../Resources/teapot.obj", false);
+	std::cout << "Number of Vertices: " << TriMeshObj->NV() << "\n";
+	std::cout << "Number of VertNormals: " << TriMeshObj->NVN() << "\n";
+	std::cout << "Number of Faces: " << TriMeshObj->NF() << "\n";
+	std::cout << "Number of TexCoords: " << TriMeshObj->NVT() << "\n";
+
 
 	//VBO
 	unsigned int vertexPosBufferID;

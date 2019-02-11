@@ -13,8 +13,8 @@ namespace Engine
 {
 	namespace Rendering
 	{
-		static const char* VertexShaderFile = "res/LightsShadingVS.shader";
-		static const char* FragmentShaderFile = "res/LightsShadingFS.shader";
+		static const char* VertexShaderFile = "res/TexturesVS.shader";
+		static const char* FragmentShaderFile = "res/TexturesFS.shader";
 
 		static const float ColorDelta = 0.00025f;
 		//const float ColorDeltaEpsilon = 0.0001f;

@@ -146,5 +146,7 @@
     <None Include="res\BasicFS.shader" />
     <None Include="res\LightsShadingFS.shader" />
     <None Include="res\LightsShadingVS.shader" />
+    <None Include="res\TexturesVS.shader" />
+    <None Include="res\TexturesFS.shader" />
   </ItemGroup>
 </Project>
