@@ -56,5 +56,9 @@ namespace Engine
 		static const char* MaterialSpecularMapFile;
 		static float MaterialSpecularExponent;
 		void SetMaterialDetails(cy::TriMesh* i_pTriMeshObj, int i_MaterialIndex);
+
+		void DecodeTexturePNG(std::string i_TextureFilename, std::vector<unsigned char> & o_ImageData, unsigned int & o_ImageWidth, unsigned int & o_ImageHeight);
+
+		float GetMaxAnisotropicLevel();
 	}
 }

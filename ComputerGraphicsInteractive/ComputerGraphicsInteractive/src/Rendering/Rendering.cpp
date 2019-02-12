@@ -3,9 +3,13 @@
 #include <assert.h>
 #include <iostream>
 
+#include <glad/glad.h>
+#include <GL/glfw3.h>
+
 #include "../cyCodeBase/cyGL.h"
 #include "../cyCodeBase/cyPoint.h"
 #include "../cyCodeBase/cyTriMesh.h"
+#include "../FileHandling/lodepng.h"
 #include "../Math/MathUtility.h"
 #include "../LightSource/PointLight.h"
 #include "Renderer.h"
@@ -138,5 +142,30 @@ namespace Engine
 			Engine::Rendering::MaterialSpecularExponent = i_pTriMeshObj->M(i_MaterialIndex).Ns;
 		}
 
+		void DecodeTexturePNG(std::string i_TextureFilename, std::vector<unsigned char> & o_ImageData, unsigned int & o_ImageWidth, unsigned int & o_ImageHeight)
+		{
+			//decode
+			unsigned int error = lodepng::decode(o_ImageData, o_ImageWidth, o_ImageHeight, i_TextureFilename);
+
+			//if there's an error, display it
+			if (error) std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+
+			//the pixels are now in the vector "image", 4 bytes per pixel, ordered RGBARGBA..., use it as texture, draw it, ...
+		}
+
+		float GetMaxAnisotropicLevel()
+		{
+			float MaxAnisotropicLevel;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &MaxAnisotropicLevel);
+			return MaxAnisotropicLevel;
+		}
+
 	}
 }
+
+
+
+/*
+References:
+https://raw.githubusercontent.com/lvandeve/lodepng/master/examples/example_decode.cpp for DecodeTexturePNG()
+*/
