@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <string>
 #include <vector>
 
 #include "Engine/Engine.h"
@@ -82,10 +83,20 @@ int main(void)
 	unsigned int vertexArrayID;
 	glGenVertexArrays(1, &vertexArrayID);
 	glBindVertexArray(vertexArrayID);
+
+	/*
+	//User input filename functionality
+	char inFilename[256];
+	std::cout << "Enter mesh filename: ";
+	std::cin >> inFilename;
+	cyTriMesh* TriMeshObj = new cyTriMesh();
+	TriMeshObj->LoadFromFileObj(inFilename, true);
+	*/
 	
 	//Loading obj
 	cyTriMesh* TriMeshObj = new cyTriMesh();
 	TriMeshObj->LoadFromFileObj("../Resources/teapot.obj", true);
+	//TriMeshObj->LoadFromFileObj(inFilename, true);
 	Engine::Rendering::SetMaterialDetails(TriMeshObj, 0);
 	std::cout << "Number of Vertices: " << TriMeshObj->NV() << "\n";
 	std::cout << "Number of VertNormals: " << TriMeshObj->NVN() << "\n";
@@ -109,9 +120,6 @@ int main(void)
 	std::cout << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).x << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).y << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).z << "\n";
 	std::cout << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).x << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).y << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).z << "\n";
 	*/
-
-
-	
 
 
 	//Vertex Positions
@@ -178,7 +186,74 @@ int main(void)
 
 	glEnableVertexAttribArray(VertexInfo::VertexTexture);
 	glVertexAttribPointer(VertexInfo::VertexTexture, sizeof(TriMeshObj->VT(0)) / sizeof(TriMeshObj->VT(0).x), GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->VT(0)), (const void*)0);
+
+	//Texture Loading and Setup
+	//Ambient Texture
+	std::string AmbientTextureFilename = "../Resources/";
+	AmbientTextureFilename += TriMeshObj->M(0).map_Ka;
+	std::vector<unsigned char> AmbientTextureImageData;
+	unsigned int AmbientTextureWidth;
+	unsigned int AmbientTextureHeight;
+	Engine::Rendering::DecodeTexturePNG(AmbientTextureFilename, AmbientTextureImageData, AmbientTextureWidth, AmbientTextureHeight);
+	std::cout << "\nAmbient Texture details:\n";
+	std::cout << "\tImage Width: " << AmbientTextureWidth << "\n";
+	std::cout << "\tImage Height: " << AmbientTextureHeight << "\n";
+
+	glActiveTexture(GL_TEXTURE0);
+	unsigned int ambientTextureID;
+	glGenTextures(1, &ambientTextureID);
+	glBindTexture(GL_TEXTURE_2D, ambientTextureID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, AmbientTextureWidth, AmbientTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&AmbientTextureImageData[0]);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameterf(ambientTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+
+	//Diffuse Texture
+	std::string DiffuseTextureFilename = "../Resources/";
+	DiffuseTextureFilename += TriMeshObj->M(0).map_Kd;
+	std::vector<unsigned char> DiffuseTextureImageData;
+	unsigned int DiffuseTextureWidth;
+	unsigned int DiffuseTextureHeight;
+	Engine::Rendering::DecodeTexturePNG(DiffuseTextureFilename, DiffuseTextureImageData, DiffuseTextureWidth, DiffuseTextureHeight);
+	std::cout << "\nDiffuse Texture details:\n";
+	std::cout << "\tImage Width: " << DiffuseTextureWidth << "\n";
+	std::cout << "\tImage Height: " << DiffuseTextureHeight << "\n";
+
+	glActiveTexture(GL_TEXTURE1);
+	unsigned int diffuseTextureID;
+	glGenTextures(1, &diffuseTextureID);
+	glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DiffuseTextureWidth, DiffuseTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&DiffuseTextureImageData[0]);
 	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameterf(diffuseTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+
+	//Specular Texture
+	std::string SpecularTextureFilename = "../Resources/";
+	SpecularTextureFilename += TriMeshObj->M(0).map_Ks;
+	std::vector<unsigned char> SpecularTextureImageData;
+	unsigned int SpecularTextureWidth;
+	unsigned int SpecularTextureHeight;
+	Engine::Rendering::DecodeTexturePNG(SpecularTextureFilename, SpecularTextureImageData, SpecularTextureWidth, SpecularTextureHeight);
+	std::cout << "\nSpecular Texture details:\n";
+	std::cout << "\tImage Width: " << SpecularTextureWidth << "\n";
+	std::cout << "\tImage Height: " << SpecularTextureHeight << "\n";
+
+	glActiveTexture(GL_TEXTURE2);
+	unsigned int specularTextureID;
+	glGenTextures(1, &specularTextureID);
+	glBindTexture(GL_TEXTURE_2D, specularTextureID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SpecularTextureWidth, SpecularTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&SpecularTextureImageData[0]);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameterf(specularTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+
 
 	Engine::Rendering::BuildAndUseProgram();
 
@@ -262,11 +337,16 @@ int main(void)
 
 		const cyPoint3f PointLightPos3 = Engine::Rendering::GetRenderPointLight().GetPosition().GetNonHomogeneous();
 		Engine::Rendering::GetGLProgram()->SetUniform("u_LightPosition", PointLightPos3);
-		Engine::Rendering::GetGLProgram()->SetUniform("u_DiffuseColor", cyPoint4f(1.f, 0.f, 0.f, 1.f));
-		Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularColor", cyPoint4f(1.f, 1.f, 1.f, 1.f));
+		//Engine::Rendering::GetGLProgram()->SetUniform("u_DiffuseColor", cyPoint4f(1.f, 0.f, 0.f, 1.f));
+		//Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularColor", cyPoint4f(1.f, 1.f, 1.f, 1.f));
 		Engine::Rendering::GetGLProgram()->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
 		//Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularExponent", Engine::Rendering::MaterialSpecularExponent);
 		Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);
+
+		//Set TextureSampler uniforms
+		Engine::Rendering::GetGLProgram()->SetUniform("u_AmbientTextureSampler", GL_TEXTURE0);
+		Engine::Rendering::GetGLProgram()->SetUniform("u_DiffuseTextureSampler", GL_TEXTURE1);
+		Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularTextureSampler", GL_TEXTURE2);
 
 		//Drawing code
 		glBindVertexArray(vertexArrayID);
