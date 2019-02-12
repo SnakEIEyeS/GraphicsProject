@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <vector>
 
 #include "Engine/Engine.h"
 #include "Timer/FrameTime.h"
@@ -22,6 +23,7 @@ enum VertexInfo
 	VertexPosition = 0,
 	VertexNormal = 1
 };
+
 
 int main(void)
 {
@@ -82,18 +84,54 @@ int main(void)
 	
 	//Loading obj
 	cyTriMesh* TriMeshObj = new cyTriMesh();
-	TriMeshObj->LoadFromFileObj("../Resources/teapot.obj", false);
+	TriMeshObj->LoadFromFileObj("../Resources/teapot.obj", true);
+	Engine::Rendering::SetMaterialDetails(TriMeshObj, 0);
 	std::cout << "Number of Vertices: " << TriMeshObj->NV() << "\n";
 	std::cout << "Number of VertNormals: " << TriMeshObj->NVN() << "\n";
 	std::cout << "Number of Faces: " << TriMeshObj->NF() << "\n";
 	std::cout << "Number of TexCoords: " << TriMeshObj->NVT() << "\n";
+	std::cout << "Number of Materials: " << TriMeshObj->NM() << "\n";
+	std::cout << "Material Details at index 0 -\n";
+	std::cout << "\tMaterial name: " << TriMeshObj->M(0).name << "\n";
+	std::cout << "\tAmbient color map: " << TriMeshObj->M(0).map_Ka << "\n";
+	std::cout << "\tDiffuse color map: " << TriMeshObj->M(0).map_Kd << "\n";
+	std::cout << "\tSpecular color map: " << TriMeshObj->M(0).map_Ks << "\n";
+	std::cout << "\tSpecular exponent: " << TriMeshObj->M(0).Ns << "\n";
+
+	
+
+	/*
+	int LastFaceIndex = TriMeshObj->NF();
+	std::cout <<  "Test face n " << TriMeshObj->F(LastFaceIndex).v[0] << " " << TriMeshObj->F(LastFaceIndex).v[1] << " " << TriMeshObj->F(LastFaceIndex).v[2] << "\n";
+	std::cout << "Test face n verts :\n";
+	std::cout << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[0]).x << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[0]).y << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[0]).z << "\n";
+	std::cout << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).x << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).y << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).z << "\n";
+	std::cout << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).x << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).y << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).z << "\n";
+	*/
 
 
-	//VBO
+	
+
+
+	//Vertex Positions
 	unsigned int vertexPosBufferID;
 	glGenBuffers(1, &vertexPosBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexPosBufferID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->V(0)) * TriMeshObj->NV(), const_cast<void*>(reinterpret_cast<void*>(&TriMeshObj->V(0))), GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->V(0)) * TriMeshObj->NV(), const_cast<void*>(reinterpret_cast<void*>(&TriMeshObj->V(0))), GL_STATIC_DRAW);
+
+	assert(sizeof(TriMeshObj->F(0).v) / sizeof(TriMeshObj->F(0).v[0]) == 3);
+	const int TriVertsToDraw = TriMeshObj->NF() * sizeof(TriMeshObj->F(0).v) / sizeof(TriMeshObj->F(0).v[0]);
+	std::cout << "Calculated Verts to draw = " << TriVertsToDraw << "\n";
+	std::vector<cyPoint3f> AVertexPositions;
+	AVertexPositions.reserve(TriVertsToDraw);
+	for (int i = 0; i < TriMeshObj->NF(); i++)
+	{
+		AVertexPositions.push_back(TriMeshObj->V(TriMeshObj->F(i).v[0]));
+		AVertexPositions.push_back(TriMeshObj->V(TriMeshObj->F(i).v[1]));
+		AVertexPositions.push_back(TriMeshObj->V(TriMeshObj->F(i).v[2]));
+		//std::cout << i << " " << AVertexPositions[i].x << " " << AVertexPositions[i].y << " " << AVertexPositions[i].z << "\n";
+	}
+	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->V(0)) * TriVertsToDraw, const_cast<void*>(reinterpret_cast<void*>(&AVertexPositions[0])), GL_STATIC_DRAW);
 	
 	glEnableVertexAttribArray(VertexInfo::VertexPosition);
 	glVertexAttribPointer(VertexInfo::VertexPosition, 3, GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->V(0)), (const void*)0);
@@ -103,7 +141,18 @@ int main(void)
 	unsigned int vertexNormalBufferID;
 	glGenBuffers(1, &vertexNormalBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexNormalBufferID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->VN(0))*TriMeshObj->NVN(), const_cast<void*>(reinterpret_cast<void*>(&TriMeshObj->VN(0))), GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->VN(0))*TriMeshObj->NVN(), const_cast<void*>(reinterpret_cast<void*>(&TriMeshObj->VN(0))), GL_STATIC_DRAW);
+
+	assert(sizeof(TriMeshObj->F(0).v) / sizeof(TriMeshObj->F(0).v[0]) == 3);
+	std::vector<cyPoint3f> AVertexNormals;
+	AVertexNormals.reserve(TriVertsToDraw);
+	for (int i = 0; i < TriMeshObj->NF(); i++)
+	{
+		AVertexNormals.push_back(TriMeshObj->VN(TriMeshObj->F(i).v[0]));
+		AVertexNormals.push_back(TriMeshObj->VN(TriMeshObj->F(i).v[1]));
+		AVertexNormals.push_back(TriMeshObj->VN(TriMeshObj->F(i).v[2]));
+	}
+	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->VN(0)) * TriVertsToDraw, const_cast<void*>(reinterpret_cast<void*>(&AVertexNormals[0])), GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(VertexInfo::VertexNormal);
 	glVertexAttribPointer(VertexInfo::VertexNormal, sizeof(TriMeshObj->VN(0)) / sizeof(TriMeshObj->VN(0).x), GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->VN(0)), (const void*)0);
@@ -190,19 +239,18 @@ int main(void)
 		Engine::Rendering::Update(window, dt);
 
 		const cyPoint3f PointLightPos3 = Engine::Rendering::GetRenderPointLight().GetPosition().GetNonHomogeneous();
-		//float APointLightUniform[3];
-		//PointLightPos3.Get(APointLightUniform);
 		Engine::Rendering::GetGLProgram()->SetUniform("u_LightPosition", PointLightPos3);
 		Engine::Rendering::GetGLProgram()->SetUniform("u_DiffuseColor", cyPoint4f(1.f, 0.f, 0.f, 1.f));
 		Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularColor", cyPoint4f(1.f, 1.f, 1.f, 1.f));
 		Engine::Rendering::GetGLProgram()->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
-		Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularAlpha", Engine::Rendering::SpecularAlpha);
+		//Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularExponent", Engine::Rendering::MaterialSpecularExponent);
+		Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);
 
 		//Drawing code
 		glBindVertexArray(vertexArrayID);
 		//glBindBuffer(GL_ARRAY_BUFFER, vertexPosBufferID);
-		//glDrawArrays(GL_TRIANGLES, 0, TriMeshObj->NV());
-		glDrawElements(GL_TRIANGLES, TriMeshObj->NF() * sizeof(TriMeshObj->F(0))/sizeof(TriMeshObj->F(0).v[0]), GL_UNSIGNED_INT, &TriMeshObj->F(0));
+		glDrawArrays(GL_TRIANGLES, 0, AVertexPositions.size());
+		//glDrawElements(GL_TRIANGLES, TriMeshObj->NF() * sizeof(TriMeshObj->F(0))/sizeof(TriMeshObj->F(0).v[0]), GL_UNSIGNED_INT, &TriMeshObj->F(0));
 		//Drawing code end
 
 		/* Swap front and back buffers */
@@ -220,7 +268,6 @@ int main(void)
     
 	return 0;
 }
-
 
 
 /*References:

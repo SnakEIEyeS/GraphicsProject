@@ -5,6 +5,7 @@
 
 #include "../cyCodeBase/cyGL.h"
 #include "../cyCodeBase/cyPoint.h"
+#include "../cyCodeBase/cyTriMesh.h"
 #include "../Math/MathUtility.h"
 #include "../LightSource/PointLight.h"
 #include "Renderer.h"
@@ -127,6 +128,14 @@ namespace Engine
 			}
 
 			return *RenderPointLight;
+		}
+
+		void SetMaterialDetails(cy::TriMesh * i_pTriMeshObj, int i_MaterialIndex)
+		{
+			Engine::Rendering::MaterialAmbientMapFile = i_pTriMeshObj->M(i_MaterialIndex).map_Ka;
+			Engine::Rendering::MaterialDiffuseMapFile = i_pTriMeshObj->M(i_MaterialIndex).map_Kd;
+			Engine::Rendering::MaterialSpecularMapFile = i_pTriMeshObj->M(i_MaterialIndex).map_Ks;
+			Engine::Rendering::MaterialSpecularExponent = i_pTriMeshObj->M(i_MaterialIndex).Ns;
 		}
 
 	}
