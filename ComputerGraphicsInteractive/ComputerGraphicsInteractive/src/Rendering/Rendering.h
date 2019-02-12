@@ -7,6 +7,10 @@
 #include "../cyCodeBase/cyGL.h"
 #include "../Math/Vector3.h"
 
+namespace cy
+{
+	class TriMesh;
+}
 
 namespace Engine
 {
@@ -46,5 +50,15 @@ namespace Engine
 
 		static const float AmbientConstant = 0.1f;
 		static const float SpecularAlpha = 5.f;
+
+		static const char* MaterialAmbientMapFile;
+		static const char* MaterialDiffuseMapFile;
+		static const char* MaterialSpecularMapFile;
+		static float MaterialSpecularExponent;
+		void SetMaterialDetails(cy::TriMesh* i_pTriMeshObj, int i_MaterialIndex);
+
+		void DecodeTexturePNG(std::string i_TextureFilename, std::vector<unsigned char> & o_ImageData, unsigned int & o_ImageWidth, unsigned int & o_ImageHeight);
+
+		float GetMaxAnisotropicLevel();
 	}
 }

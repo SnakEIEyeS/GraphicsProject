@@ -51,6 +51,9 @@
     <ClCompile Include="src\LightSource\PointLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\FileHandling\lodepng.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Input\Input.h">
@@ -137,6 +140,9 @@
     <ClInclude Include="src\LightSource\PointLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\FileHandling\lodepng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\cyCodeBase\.editorconfig" />
@@ -146,5 +152,7 @@
     <None Include="res\BasicFS.shader" />
     <None Include="res\LightsShadingFS.shader" />
     <None Include="res\LightsShadingVS.shader" />
+    <None Include="res\TexturesVS.shader" />
+    <None Include="res\TexturesFS.shader" />
   </ItemGroup>
 </Project>
