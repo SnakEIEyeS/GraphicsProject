@@ -21,7 +21,8 @@ const float PI = 3.14f;
 enum VertexInfo
 {
 	VertexPosition = 0,
-	VertexNormal = 1
+	VertexNormal = 1,
+	VertexTexture = 2
 };
 
 
@@ -124,7 +125,7 @@ int main(void)
 	std::cout << "Calculated Verts to draw = " << TriVertsToDraw << "\n";
 	std::vector<cyPoint3f> AVertexPositions;
 	AVertexPositions.reserve(TriVertsToDraw);
-	for (int i = 0; i < TriMeshObj->NF(); i++)
+	for (unsigned int i = 0; i < TriMeshObj->NF(); i++)
 	{
 		AVertexPositions.push_back(TriMeshObj->V(TriMeshObj->F(i).v[0]));
 		AVertexPositions.push_back(TriMeshObj->V(TriMeshObj->F(i).v[1]));
@@ -146,7 +147,7 @@ int main(void)
 	assert(sizeof(TriMeshObj->F(0).v) / sizeof(TriMeshObj->F(0).v[0]) == 3);
 	std::vector<cyPoint3f> AVertexNormals;
 	AVertexNormals.reserve(TriVertsToDraw);
-	for (int i = 0; i < TriMeshObj->NF(); i++)
+	for (unsigned int i = 0; i < TriMeshObj->NF(); i++)
 	{
 		AVertexNormals.push_back(TriMeshObj->VN(TriMeshObj->F(i).v[0]));
 		AVertexNormals.push_back(TriMeshObj->VN(TriMeshObj->F(i).v[1]));
@@ -156,6 +157,27 @@ int main(void)
 
 	glEnableVertexAttribArray(VertexInfo::VertexNormal);
 	glVertexAttribPointer(VertexInfo::VertexNormal, sizeof(TriMeshObj->VN(0)) / sizeof(TriMeshObj->VN(0).x), GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->VN(0)), (const void*)0);
+
+
+	//Vertex Texture Coordinates
+	unsigned int vertexTextureBufferID;
+	glGenBuffers(1, &vertexTextureBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexTextureBufferID);
+
+	assert(sizeof(TriMeshObj->F(0).v) / sizeof(TriMeshObj->F(0).v[0]) == 3);
+	std::vector<cyPoint3f> AVertexTextures;
+	AVertexTextures.reserve(TriVertsToDraw);
+	const int NumVertexTextures = TriMeshObj->NVT();
+	for (unsigned int i = 0; i < TriMeshObj->NF(); i++)
+	{
+		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->F(i).v[0] % (NumVertexTextures - 1)));
+		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->F(i).v[1] % (NumVertexTextures - 1)));
+		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->F(i).v[2] % (NumVertexTextures - 1)));
+	}
+	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->VT(0))*TriVertsToDraw, const_cast<void*>(reinterpret_cast<void*>(&AVertexTextures[0])), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(VertexInfo::VertexTexture);
+	glVertexAttribPointer(VertexInfo::VertexTexture, sizeof(TriMeshObj->VT(0)) / sizeof(TriMeshObj->VT(0).x), GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->VT(0)), (const void*)0);
 	
 
 	Engine::Rendering::BuildAndUseProgram();

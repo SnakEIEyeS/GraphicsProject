@@ -2,12 +2,14 @@
 
 layout(location = 0) in vec3 i_Pos;
 layout(location = 1) in vec3 i_Normal;
+layout(location = 2) in vec3 i_VertexTexture;
 
 uniform mat4 u_Projection;
 uniform mat4 u_Camera;
 uniform vec3 u_LightPosition;
 
 out vec4 o_ColorVS;
+out vec3 o_VertexTexture;
 out float o_cosTheta;
 out float o_SpecularComponent;
 
@@ -27,4 +29,6 @@ void main()
 	o_SpecularComponent = dot(HalfVector, VertexNormal);
 	//o_ColorVS = vec4(1.f, 0.f, 0.f, 1.0f);
 	o_ColorVS = transpose(inverse(u_Camera)) * vec4(i_Normal, 1.f);
+
+	o_VertexTexture = i_VertexTexture;
 }

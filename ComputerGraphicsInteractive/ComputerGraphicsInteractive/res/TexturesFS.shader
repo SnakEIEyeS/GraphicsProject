@@ -8,6 +8,7 @@ uniform float u_AmbientConstant;
 uniform float u_SpecularExponent;
 
 in vec4 o_ColorVS;
+in vec3 o_VertexTexture;
 in float o_cosTheta;
 in float o_SpecularComponent;
 
