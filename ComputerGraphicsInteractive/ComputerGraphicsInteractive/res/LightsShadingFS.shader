@@ -23,3 +23,7 @@ void main()
 	//o_ColorFS = AmbientColor + FinalDiffuseColor;
 	//o_ColorFS = FinalDiffuseColor;
 }
+
+/*References:
+http://www.opengl-tutorial.org/beginners-tutorials/tutorial-8-basic-shading/ for Ambient Color 'calculation'
+*/

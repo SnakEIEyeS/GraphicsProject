@@ -3,8 +3,13 @@
 #include <assert.h>
 #include <iostream>
 
+#include <glad/glad.h>
+#include <GL/glfw3.h>
+
 #include "../cyCodeBase/cyGL.h"
 #include "../cyCodeBase/cyPoint.h"
+#include "../cyCodeBase/cyTriMesh.h"
+#include "../FileHandling/lodepng.h"
 #include "../Math/MathUtility.h"
 #include "../LightSource/PointLight.h"
 #include "Renderer.h"
@@ -13,8 +18,8 @@ namespace Engine
 {
 	namespace Rendering
 	{
-		static const char* VertexShaderFile = "res/LightsShadingVS.shader";
-		static const char* FragmentShaderFile = "res/LightsShadingFS.shader";
+		static const char* VertexShaderFile = "res/TexturesVS.shader";
+		static const char* FragmentShaderFile = "res/TexturesFS.shader";
 
 		static const float ColorDelta = 0.00025f;
 		//const float ColorDeltaEpsilon = 0.0001f;
@@ -129,5 +134,38 @@ namespace Engine
 			return *RenderPointLight;
 		}
 
+		void SetMaterialDetails(cy::TriMesh * i_pTriMeshObj, int i_MaterialIndex)
+		{
+			Engine::Rendering::MaterialAmbientMapFile = i_pTriMeshObj->M(i_MaterialIndex).map_Ka;
+			Engine::Rendering::MaterialDiffuseMapFile = i_pTriMeshObj->M(i_MaterialIndex).map_Kd;
+			Engine::Rendering::MaterialSpecularMapFile = i_pTriMeshObj->M(i_MaterialIndex).map_Ks;
+			Engine::Rendering::MaterialSpecularExponent = i_pTriMeshObj->M(i_MaterialIndex).Ns;
+		}
+
+		void DecodeTexturePNG(std::string i_TextureFilename, std::vector<unsigned char> & o_ImageData, unsigned int & o_ImageWidth, unsigned int & o_ImageHeight)
+		{
+			//decode
+			unsigned int error = lodepng::decode(o_ImageData, o_ImageWidth, o_ImageHeight, i_TextureFilename);
+
+			//if there's an error, display it
+			if (error) std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+
+			//the pixels are now in the vector "image", 4 bytes per pixel, ordered RGBARGBA..., use it as texture, draw it, ...
+		}
+
+		float GetMaxAnisotropicLevel()
+		{
+			float MaxAnisotropicLevel;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &MaxAnisotropicLevel);
+			return MaxAnisotropicLevel;
+		}
+
 	}
 }
+
+
+
+/*
+References:
+https://raw.githubusercontent.com/lvandeve/lodepng/master/examples/example_decode.cpp for DecodeTexturePNG()
+*/
