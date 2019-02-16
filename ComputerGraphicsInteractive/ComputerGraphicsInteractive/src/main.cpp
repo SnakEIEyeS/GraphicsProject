@@ -10,6 +10,7 @@
 #include "Timer/FrameTime.h"
 #include "Input/Input.h"
 #include "LightSource/PointLight.h"
+#include "ModelHandler/ModelHandler.h"
 #include "Rendering/Rendering.h"
 
 #include "cyCodeBase/cyGL.h"
@@ -19,12 +20,13 @@
 
 const float PI = 3.14f;
 
-enum VertexInfo
+//TODO delete from here
+/*enum VertexInfo
 {
 	VertexPosition = 0,
 	VertexNormal = 1,
 	VertexTexture = 2
-};
+};*/
 
 
 int main(void)
@@ -101,7 +103,7 @@ int main(void)
 	std::cout << "Number of Vertices: " << TriMeshObj->NV() << "\n";
 	std::cout << "Number of VertNormals: " << TriMeshObj->NVN() << "\n";
 	std::cout << "Number of Faces: " << TriMeshObj->NF() << "\n";
-	std::cout << "Number of TexCoords: " << TriMeshObj->NVT() << "\n";
+	std::cout << "Number of VertexTexCoords: " << TriMeshObj->NVT() << "\n";
 	std::cout << "Number of Materials: " << TriMeshObj->NM() << "\n";
 	std::cout << "Material Details at index 0 -\n";
 	std::cout << "\tMaterial name: " << TriMeshObj->M(0).name << "\n";
@@ -110,18 +112,74 @@ int main(void)
 	std::cout << "\tSpecular color map: " << TriMeshObj->M(0).map_Ks << "\n";
 	std::cout << "\tSpecular exponent: " << TriMeshObj->M(0).Ns << "\n";
 
+
+	Engine::ModelHandling::GetModelHandler()->AddVertexPositions(TriMeshObj, vertexArrayID);
+	Engine::ModelHandling::GetModelHandler()->AddVertexNormals(TriMeshObj, vertexArrayID);
+	Engine::ModelHandling::GetModelHandler()->AddVertexTextureCoordinates(TriMeshObj, vertexArrayID);
 	
 
+	//Render Plane
+	//Plane VAO
+	unsigned int planeVertexArrayID;
+	glGenVertexArrays(1, &planeVertexArrayID);
+	glBindVertexArray(planeVertexArrayID);
+
+	//Plane VertexPositions
+	std::vector<cyPoint3f> APlaneVertPos;
+	APlaneVertPos.reserve(6);
+	cyPoint3f PlaneTopLeft(-20.f, 10.f, 0.f);
+	cyPoint3f PlaneTopRight(20.f, 10.f, 0.f);
+	cyPoint3f PlaneBottomLeft(-20.f, -10.f, 0.f);
+	cyPoint3f PlaneBottomRight(20.f, -10.f, 0.f);
+	APlaneVertPos.push_back(PlaneTopLeft);
+	APlaneVertPos.push_back(PlaneBottomLeft);
+	APlaneVertPos.push_back(PlaneBottomRight);
+	APlaneVertPos.push_back(PlaneBottomRight);
+	APlaneVertPos.push_back(PlaneTopRight);
+	APlaneVertPos.push_back(PlaneTopLeft);
+
+	unsigned int planeVertexPosBufferID;
+	glGenBuffers(1, &planeVertexPosBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVertexPosBufferID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertPos[0]) * APlaneVertPos.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertPos[0])), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexPosition);
+	glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexPosition, 3, GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->V(0)), (const void*)0);
+
+	//Plane VertNormals
+	std::vector<cyPoint3f> APlaneVertNormals;
+	APlaneVertNormals.reserve(6);
+	cyPoint3f AllOnes(1.f, 1.f, 1.f);
+	for (int i = 0; i < 6; i++)
+	{
+		APlaneVertNormals.push_back(AllOnes);
+	}
+
+	unsigned int planeVertexNormalBufferID;
+	glGenBuffers(1, &planeVertexNormalBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVertexNormalBufferID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertNormals[0]) * APlaneVertNormals.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertNormals[0])), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexNormal);
+	glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexNormal, sizeof(APlaneVertNormals[0]) / sizeof(APlaneVertNormals[0].x), GL_FLOAT, GL_FALSE, sizeof(APlaneVertNormals[0]), (const void*)0);
+
+	//Plane TextureCoordinates
+	std::vector<cyPoint3f> APlaneVertTextures;
+	APlaneVertTextures.reserve(6);
+	APlaneVertTextures.push_back(cyPoint3f(0.f, 1.f, 0.f));
+	APlaneVertTextures.push_back(cyPoint3f(0.f, 0.f, 0.f));
+	APlaneVertTextures.push_back(cyPoint3f(1.f, 0.f, 0.f));
+	APlaneVertTextures.push_back(cyPoint3f(1.f, 0.f, 0.f));
+	APlaneVertTextures.push_back(cyPoint3f(1.f, 1.f, 0.f));
+	APlaneVertTextures.push_back(cyPoint3f(0.f, 1.f, 0.f));
+
+	unsigned int planeVertexTextureBufferID;
+	glGenBuffers(1, &planeVertexTextureBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVertexTextureBufferID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertTextures[0])*APlaneVertTextures.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertTextures[0])), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexTexture);
+	glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexTexture, sizeof(APlaneVertTextures[0]) / sizeof(APlaneVertTextures[0].x), GL_FLOAT, GL_FALSE, sizeof(APlaneVertTextures[0]), (const void*)0);
+
 	/*
-	int LastFaceIndex = TriMeshObj->NF();
-	std::cout <<  "Test face n " << TriMeshObj->F(LastFaceIndex).v[0] << " " << TriMeshObj->F(LastFaceIndex).v[1] << " " << TriMeshObj->F(LastFaceIndex).v[2] << "\n";
-	std::cout << "Test face n verts :\n";
-	std::cout << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[0]).x << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[0]).y << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[0]).z << "\n";
-	std::cout << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).x << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).y << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).z << "\n";
-	std::cout << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).x << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).y << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).z << "\n";
-	*/
-
-
 	//Vertex Positions
 	unsigned int vertexPosBufferID;
 	glGenBuffers(1, &vertexPosBufferID);
@@ -178,14 +236,15 @@ int main(void)
 	const int NumVertexTextures = TriMeshObj->NVT();
 	for (unsigned int i = 0; i < TriMeshObj->NF(); i++)
 	{
-		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->F(i).v[0] % (NumVertexTextures - 1)));
-		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->F(i).v[1] % (NumVertexTextures - 1)));
-		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->F(i).v[2] % (NumVertexTextures - 1)));
+		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->FT(i).v[0]));
+		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->FT(i).v[1]));
+		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->FT(i).v[2]));
 	}
 	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->VT(0))*TriVertsToDraw, const_cast<void*>(reinterpret_cast<void*>(&AVertexTextures[0])), GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(VertexInfo::VertexTexture);
 	glVertexAttribPointer(VertexInfo::VertexTexture, sizeof(TriMeshObj->VT(0)) / sizeof(TriMeshObj->VT(0).x), GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->VT(0)), (const void*)0);
+	*/
 
 	//Texture Loading and Setup
 	//Ambient Texture
@@ -351,8 +410,14 @@ int main(void)
 		//Drawing code
 		glBindVertexArray(vertexArrayID);
 		//glBindBuffer(GL_ARRAY_BUFFER, vertexPosBufferID);
-		glDrawArrays(GL_TRIANGLES, 0, AVertexPositions.size());
+
+		//TODO put the vertices and all data into GameObject or something
+		glDrawArrays(GL_TRIANGLES, 0, TriMeshObj->NF() * sizeof(TriMeshObj->F(0).v) / sizeof(TriMeshObj->F(0).v[0]));
 		//glDrawElements(GL_TRIANGLES, TriMeshObj->NF() * sizeof(TriMeshObj->F(0))/sizeof(TriMeshObj->F(0).v[0]), GL_UNSIGNED_INT, &TriMeshObj->F(0));
+
+		glBindVertexArray(planeVertexArrayID);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
 		//Drawing code end
 
 		/* Swap front and back buffers */
