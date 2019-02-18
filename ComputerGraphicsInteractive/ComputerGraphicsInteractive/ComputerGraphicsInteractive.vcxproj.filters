@@ -175,5 +175,7 @@
     <None Include="res\LightsShadingVS.shader" />
     <None Include="res\TexturesVS.shader" />
     <None Include="res\TexturesFS.shader" />
+    <None Include="res\RenderToTextureVS.shader" />
+    <None Include="res\RenderToTextureFS.shader" />
   </ItemGroup>
 </Project>

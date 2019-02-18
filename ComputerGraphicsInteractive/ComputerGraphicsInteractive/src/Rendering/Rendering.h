@@ -22,6 +22,12 @@ namespace Engine
 	namespace Rendering
 	{
 		static cyGLSLProgram* cyGraphicsProgram = nullptr;
+
+		static const char* SceneVertexShaderFile = "res/TexturesVS.shader";
+		static const char* SceneFragmentShaderFile = "res/TexturesFS.shader";
+
+		static const char* RenderTextureVertexShaderFile = "res/RenderToTextureVS.shader";
+		static const char* RenderTextureFragmentShaderFile = "res/RenderToTextureFS.shader";
 		
 		struct Color
 		{
@@ -43,7 +49,9 @@ namespace Engine
 		void AnimateClearColor(float i_FrameTime);
 
 		cyGLSLProgram* GetGLProgram();
+		cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
 		bool BuildAndUseProgram();
+		bool BuildAndUseProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
 
 		static Engine::Lighting::PointLight* RenderPointLight = nullptr;
 		Engine::Lighting::PointLight& GetRenderPointLight();

@@ -189,6 +189,8 @@
     <None Include="res\BasicVS.shader" />
     <None Include="res\LightsShadingFS.shader" />
     <None Include="res\LightsShadingVS.shader" />
+    <None Include="res\RenderToTextureFS.shader" />
+    <None Include="res\RenderToTextureVS.shader" />
     <None Include="res\TexturesFS.shader" />
     <None Include="res\TexturesVS.shader" />
     <None Include="src\cyCodeBase\.editorconfig" />
