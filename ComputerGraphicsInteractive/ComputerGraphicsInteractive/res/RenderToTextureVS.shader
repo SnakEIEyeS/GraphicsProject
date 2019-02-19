@@ -6,12 +6,13 @@ layout(location = 2) in vec3 i_VertexTexture;
 
 uniform mat4 u_PlaneProjection;
 uniform mat4 u_PlaneCamera;
+uniform mat4 u_PlaneObject;
 
 out vec3 o_VertexTexture;
 
 void main()
 {
-	gl_Position = u_PlaneProjection * u_PlaneCamera * vec4(i_Pos, 1.f);
+	gl_Position = u_PlaneProjection * u_PlaneCamera * u_PlaneObject * vec4(i_Pos, 1.f);
 
 	o_VertexTexture = i_VertexTexture;
 }

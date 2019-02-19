@@ -53,6 +53,7 @@ namespace Engine
 		bool BuildAndUseProgram();
 		bool BuildAndUseProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
 
+		//TODO make PointLight have a GameObject
 		static Engine::Lighting::PointLight* RenderPointLight = nullptr;
 		Engine::Lighting::PointLight& GetRenderPointLight();
 

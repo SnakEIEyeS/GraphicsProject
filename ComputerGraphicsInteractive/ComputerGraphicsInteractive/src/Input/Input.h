@@ -38,5 +38,7 @@ namespace Engine
 		MousePosition GetMouseDispaclementInFrame(GLFWwindow * window);
 
 		void SetCameraGameObject(Engine::Entity::GameObject* i_pGameObject);
+		void SetCtrlBoundGameObject(Engine::Entity::GameObject* i_pGameObject);
+		void SetAltBoundGameObject(Engine::Entity::GameObject* i_pGameObject);
 	} //namespace Input
 } //namespace Engine

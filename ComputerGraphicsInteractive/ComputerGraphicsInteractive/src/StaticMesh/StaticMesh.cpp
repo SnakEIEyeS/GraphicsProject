@@ -18,6 +18,11 @@ Engine::Entity::StaticMesh::StaticMesh(GameObject* i_pGameObject) : m_pGameObjec
 {
 }
 
+Engine::Entity::StaticMesh::StaticMesh(GameObject * i_pGameObject, unsigned int i_VertexArrayID) 
+	: m_pGameObject(i_pGameObject), m_VertexArrayID(i_VertexArrayID)
+{
+}
+
 const Engine::Entity::GameObject * Engine::Entity::StaticMesh::GetGameObject() const
 {
 	return m_pGameObject;
@@ -38,12 +43,3 @@ void Engine::Entity::StaticMesh::SetVertexArrayID(unsigned int i_VertexArrayID)
 	m_VertexArrayID = i_VertexArrayID;
 }
 
-unsigned int Engine::Entity::StaticMesh::GetTextureID()
-{
-	return m_TextureID;
-}
-
-void Engine::Entity::StaticMesh::SetTextureID(unsigned int i_TextureID)
-{
-	m_TextureID = i_TextureID;
-}
