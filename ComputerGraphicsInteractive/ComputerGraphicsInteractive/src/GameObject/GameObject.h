@@ -1,22 +1,29 @@
 #pragma once
 
+#include "../cyCodeBase/cyPoint.h"
+#include "../cyCodeBase/cyMatrix.h"
+
 namespace Engine
 {
 	namespace Entity
 	{
-		class StaticMesh;
-
 		class GameObject
 		{
 		public:
 			GameObject();
 			~GameObject();
 
-			StaticMesh* GetStaticMesh();
-			void SetStaticMesh(StaticMesh* i_pStaticMesh);
+			const cyPoint3f GetPosition() const;
+			void SetPosition(cyPoint3f i_Position);
+
+			const cyPoint3f GetRotation() const;
+			void SetRotation(cyPoint3f i_Rotation);
+
+			cyMatrix4f GetTransform() const;
 
 		private:
-			StaticMesh* m_pStaticMesh = nullptr;
+			cyPoint3f m_Position;
+			cyPoint3f m_Rotation;
 		};
 	}
 }

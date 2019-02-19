@@ -6,7 +6,9 @@
 #include <string>
 #include <vector>
 
+#include "Camera/Camera.h"
 #include "Engine/Engine.h"
+#include "GameObject/GameObject.h"
 #include "Timer/FrameTime.h"
 #include "Input/Input.h"
 #include "LightSource/PointLight.h"
@@ -15,7 +17,7 @@
 
 #include "cyCodeBase/cyGL.h"
 #include "cyCodeBase/cyMatrix.h"
-#include "cyCodeBase//cyPoint.h"
+#include "cyCodeBase/cyPoint.h"
 #include "cyCodeBase/cyTriMesh.h"
 
 const float PI = 3.14f;
@@ -261,6 +263,7 @@ int main(void)
 	cyGLSLProgram* MainSceneProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::SceneFragmentShaderFile);
 	cyGLSLProgram* RenderTextureProgram = Engine::Rendering::BuildProgram(Engine::Rendering::RenderTextureVertexShaderFile, Engine::Rendering::RenderTextureFragmentShaderFile);
 
+	
 	float fovy = 45.f;
 	float FOV = 1/tan(fovy);
 	//float aspect = 2.f; //2:1
@@ -268,59 +271,18 @@ int main(void)
 	float zNear = 0.1f;
 	float zFar = 100.f;
 
-	cyMatrix4f CameraMatrix(
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, -27.0f,
-		0.0f, 0.f, 0.f, 1.0f
-	);
-	cyMatrix4f const ProjectionMatrix(
-		FOV/aspect, 0.0f,                          0.0f,                                0.0f,
-		0.0f,       FOV,                           0.0f,                                0.0f,
-		0.0f,       0.0f, (zFar + zNear)/(zNear - zFar), (2.f * zFar * zNear)/(zNear - zFar),
-		0.0f,       0.0f,                         -1.0f,                                 0.0f
-	);
+	Engine::Entity::Camera* MainSceneCamera = 
+		new Engine::Entity::Camera(new Engine::Entity::GameObject(), 
+		fovy, WindowWidth, WindowHeight, zNear, zFar);
 
-	cyMatrix4f FinalTransformMatrix;
-	FinalTransformMatrix = ProjectionMatrix * CameraMatrix;
+	MainSceneCamera->GetGameObject()->SetPosition(cyPoint3f(0.f, 0.f, -60.f));
+	MainSceneCamera->GetGameObject()->SetRotation(cyPoint3f(0.f, 0.f, 0.f));
 
-	//Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", FinalTransformMatrix.data);
+	float* PerspectiveTest = MainSceneCamera->GetPerspectiveProjection().data;
+	float* CameraTransformTest = MainSceneCamera->GetGameObject()->GetTransform().data;
 
-	cyMatrix4f const RotateMatrix(
-		cos(0.005f), 0.0f, sin(0.005f), 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		-sin(0.005f), 0.0f, cos(0.005f), 0.0f,
-		0.0f, 0.f, 0.f, 1.0f
-	);
-
-	cyMatrix4f const XRotateMatrix(
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, cos(-PI / 4), -sin(-PI / 4), 0.0f,
-		0.0f, sin(-PI / 4), cos(-PI / 4), 0.0f,
-		0.0f, 0.f, 0.f, 1.0f
-	);
-
-	cyMatrix4f const YRotateMatrix(
-		cos(PI / 8), 0.0f, sin(PI / 8), 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		-sin(PI / 8), 0.0f, cos(PI / 8), 0.0f,
-		0.0f, 0.f, 0.f, 1.0f
-	);
-
-	cyMatrix4f const ZRotateMatrix(
-		cos(PI / 4), -sin(PI / 4), 0.0f, 0.0f,
-		sin(PI / 4), cos(PI / 4), 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.f, 0.f, 1.0f
-	);
-
-	//FinalTransformMatrix = ProjectionMatrix * CameraMatrix * XRotateMatrix;
-	//Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", FinalTransformMatrix.data);
-	
-	//CameraMatrix *= XRotateMatrix;
-	
-	//Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Projection", ProjectionMatrix.data);
-	//Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Camera", CameraMatrix.data);
+	//Engine::Input::CameraGameObject = MainSceneCamera->GetGameObject();
+	Engine::Input::SetCameraGameObject(MainSceneCamera->GetGameObject());
 
 	
 	//Create RenderTexture for teapot's RenderToTexture operation
@@ -368,8 +330,10 @@ int main(void)
 		//Render the scene to our RenderTexture
 		MainSceneProgram->Bind();
 
-		MainSceneProgram->SetUniformMatrix4("u_Projection", ProjectionMatrix.data);
-		MainSceneProgram->SetUniformMatrix4("u_Camera", CameraMatrix.data);
+		//MainSceneProgram->SetUniformMatrix4("u_Projection", ProjectionMatrix.data);
+		//MainSceneProgram->SetUniformMatrix4("u_Camera", CameraMatrix.data);
+		MainSceneProgram->SetUniformMatrix4("u_Projection", MainSceneCamera->GetPerspectiveProjection().data);
+		MainSceneProgram->SetUniformMatrix4("u_Camera", MainSceneCamera->GetGameObject()->GetTransform().data);
 
 		const cyPoint3f PointLightPos3 = Engine::Rendering::GetRenderPointLight().GetPosition().GetNonHomogeneous();
 		MainSceneProgram->SetUniform("u_LightPosition", PointLightPos3);
