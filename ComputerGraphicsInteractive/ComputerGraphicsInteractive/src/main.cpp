@@ -6,25 +6,29 @@
 #include <string>
 #include <vector>
 
+#include "Camera/Camera.h"
 #include "Engine/Engine.h"
+#include "GameObject/GameObject.h"
 #include "Timer/FrameTime.h"
 #include "Input/Input.h"
 #include "LightSource/PointLight.h"
+#include "ModelHandler/ModelHandler.h"
 #include "Rendering/Rendering.h"
 
 #include "cyCodeBase/cyGL.h"
 #include "cyCodeBase/cyMatrix.h"
-#include "cyCodeBase//cyPoint.h"
+#include "cyCodeBase/cyPoint.h"
 #include "cyCodeBase/cyTriMesh.h"
 
 const float PI = 3.14f;
 
-enum VertexInfo
+//TODO delete from here
+/*enum VertexInfo
 {
 	VertexPosition = 0,
 	VertexNormal = 1,
 	VertexTexture = 2
-};
+};*/
 
 
 int main(void)
@@ -34,8 +38,8 @@ int main(void)
 
 	GLFWwindow* window;
 	const char* WindowName = "Shantanu's Window: Hello World!";
-	const int WindowWidth = 800;
-	const int WindowHeight = 600;
+	const unsigned int WindowWidth = 800;
+	const unsigned int WindowHeight = 600;
 
 	/* Initialize the library */
 	if (!glfwInit())
@@ -80,117 +84,117 @@ int main(void)
 	float dt;
 
 	//VAO
-	unsigned int vertexArrayID;
-	glGenVertexArrays(1, &vertexArrayID);
-	glBindVertexArray(vertexArrayID);
+	unsigned int teapotVertexArrayID;
+	glGenVertexArrays(1, &teapotVertexArrayID);
+	glBindVertexArray(teapotVertexArrayID);
 
 	/*
 	//User input filename functionality
 	char inFilename[256];
 	std::cout << "Enter mesh filename: ";
 	std::cin >> inFilename;
-	cyTriMesh* TriMeshObj = new cyTriMesh();
-	TriMeshObj->LoadFromFileObj(inFilename, true);
+	cyTriMesh* TeapotTriMesh = new cyTriMesh();
+	TeapotTriMesh->LoadFromFileObj(inFilename, true);
 	*/
 	
 	//Loading obj
-	cyTriMesh* TriMeshObj = new cyTriMesh();
-	TriMeshObj->LoadFromFileObj("../Resources/teapot.obj", true);
-	//TriMeshObj->LoadFromFileObj(inFilename, true);
-	Engine::Rendering::SetMaterialDetails(TriMeshObj, 0);
-	std::cout << "Number of Vertices: " << TriMeshObj->NV() << "\n";
-	std::cout << "Number of VertNormals: " << TriMeshObj->NVN() << "\n";
-	std::cout << "Number of Faces: " << TriMeshObj->NF() << "\n";
-	std::cout << "Number of TexCoords: " << TriMeshObj->NVT() << "\n";
-	std::cout << "Number of Materials: " << TriMeshObj->NM() << "\n";
+	cyTriMesh* TeapotTriMesh = new cyTriMesh();
+	TeapotTriMesh->LoadFromFileObj("../Resources/teapot.obj", true);
+	//TeapotTriMesh->LoadFromFileObj(inFilename, true);
+	Engine::Rendering::SetMaterialDetails(TeapotTriMesh, 0);
+	std::cout << "Number of Vertices: " << TeapotTriMesh->NV() << "\n";
+	std::cout << "Number of VertNormals: " << TeapotTriMesh->NVN() << "\n";
+	std::cout << "Number of Faces: " << TeapotTriMesh->NF() << "\n";
+	std::cout << "Number of VertexTexCoords: " << TeapotTriMesh->NVT() << "\n";
+	std::cout << "Number of Materials: " << TeapotTriMesh->NM() << "\n";
 	std::cout << "Material Details at index 0 -\n";
-	std::cout << "\tMaterial name: " << TriMeshObj->M(0).name << "\n";
-	std::cout << "\tAmbient color map: " << TriMeshObj->M(0).map_Ka << "\n";
-	std::cout << "\tDiffuse color map: " << TriMeshObj->M(0).map_Kd << "\n";
-	std::cout << "\tSpecular color map: " << TriMeshObj->M(0).map_Ks << "\n";
-	std::cout << "\tSpecular exponent: " << TriMeshObj->M(0).Ns << "\n";
+	std::cout << "\tMaterial name: " << TeapotTriMesh->M(0).name << "\n";
+	std::cout << "\tAmbient color map: " << TeapotTriMesh->M(0).map_Ka << "\n";
+	std::cout << "\tDiffuse color map: " << TeapotTriMesh->M(0).map_Kd << "\n";
+	std::cout << "\tSpecular color map: " << TeapotTriMesh->M(0).map_Ks << "\n";
+	std::cout << "\tSpecular exponent: " << TeapotTriMesh->M(0).Ns << "\n";
 
+
+	Engine::ModelHandling::GetModelHandler()->AddVertexPositions(TeapotTriMesh, teapotVertexArrayID);
+	Engine::ModelHandling::GetModelHandler()->AddVertexNormals(TeapotTriMesh, teapotVertexArrayID);
+	Engine::ModelHandling::GetModelHandler()->AddVertexTextureCoordinates(TeapotTriMesh, teapotVertexArrayID);
 	
 
-	/*
-	int LastFaceIndex = TriMeshObj->NF();
-	std::cout <<  "Test face n " << TriMeshObj->F(LastFaceIndex).v[0] << " " << TriMeshObj->F(LastFaceIndex).v[1] << " " << TriMeshObj->F(LastFaceIndex).v[2] << "\n";
-	std::cout << "Test face n verts :\n";
-	std::cout << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[0]).x << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[0]).y << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[0]).z << "\n";
-	std::cout << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).x << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).y << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[1]).z << "\n";
-	std::cout << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).x << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).y << " " << TriMeshObj->V(TriMeshObj->F(LastFaceIndex).v[2]).z << "\n";
-	*/
+	//Render Plane
+	//Plane VAO
+	unsigned int planeVertexArrayID;
+	glGenVertexArrays(1, &planeVertexArrayID);
+	glBindVertexArray(planeVertexArrayID);
 
+	//Plane VertexPositions
+	std::vector<cyPoint3f> APlaneVertPos;
+	APlaneVertPos.reserve(6);
 
-	//Vertex Positions
-	unsigned int vertexPosBufferID;
-	glGenBuffers(1, &vertexPosBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexPosBufferID);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->V(0)) * TriMeshObj->NV(), const_cast<void*>(reinterpret_cast<void*>(&TriMeshObj->V(0))), GL_STATIC_DRAW);
+	//const float PlaneXExtent = 25.f;
+	//const float PlaneYExtent = 15.f;
+	const float PlaneXExtent = 40.f;
+	const float PlaneYExtent = 30.f;
+	cyPoint3f PlaneTopLeft(-PlaneXExtent, PlaneYExtent, 0.f);
+	cyPoint3f PlaneTopRight(PlaneXExtent, PlaneYExtent, 0.f);
+	cyPoint3f PlaneBottomLeft(-PlaneXExtent, -PlaneYExtent, 0.f);
+	cyPoint3f PlaneBottomRight(PlaneXExtent, -PlaneYExtent, 0.f);
+	APlaneVertPos.push_back(PlaneTopLeft);
+	APlaneVertPos.push_back(PlaneBottomLeft);
+	APlaneVertPos.push_back(PlaneBottomRight);
+	APlaneVertPos.push_back(PlaneBottomRight);
+	APlaneVertPos.push_back(PlaneTopRight);
+	APlaneVertPos.push_back(PlaneTopLeft);
 
-	assert(sizeof(TriMeshObj->F(0).v) / sizeof(TriMeshObj->F(0).v[0]) == 3);
-	const int TriVertsToDraw = TriMeshObj->NF() * sizeof(TriMeshObj->F(0).v) / sizeof(TriMeshObj->F(0).v[0]);
-	std::cout << "Calculated Verts to draw = " << TriVertsToDraw << "\n";
-	std::vector<cyPoint3f> AVertexPositions;
-	AVertexPositions.reserve(TriVertsToDraw);
-	for (unsigned int i = 0; i < TriMeshObj->NF(); i++)
+	unsigned int planeVertexPosBufferID;
+	glGenBuffers(1, &planeVertexPosBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVertexPosBufferID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertPos[0]) * APlaneVertPos.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertPos[0])), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexPosition);
+	glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexPosition, 3, GL_FLOAT, GL_FALSE, sizeof(TeapotTriMesh->V(0)), (const void*)0);
+
+	//Plane VertNormals
+	std::vector<cyPoint3f> APlaneVertNormals;
+	APlaneVertNormals.reserve(6);
+	cyPoint3f UpVector(0.f, 0.f, 1.f);
+	for (int i = 0; i < 6; i++)
 	{
-		AVertexPositions.push_back(TriMeshObj->V(TriMeshObj->F(i).v[0]));
-		AVertexPositions.push_back(TriMeshObj->V(TriMeshObj->F(i).v[1]));
-		AVertexPositions.push_back(TriMeshObj->V(TriMeshObj->F(i).v[2]));
-		//std::cout << i << " " << AVertexPositions[i].x << " " << AVertexPositions[i].y << " " << AVertexPositions[i].z << "\n";
+		APlaneVertNormals.push_back(UpVector);
 	}
-	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->V(0)) * TriVertsToDraw, const_cast<void*>(reinterpret_cast<void*>(&AVertexPositions[0])), GL_STATIC_DRAW);
-	
-	glEnableVertexAttribArray(VertexInfo::VertexPosition);
-	glVertexAttribPointer(VertexInfo::VertexPosition, 3, GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->V(0)), (const void*)0);
-    
 
-	//Vertex Normals
-	unsigned int vertexNormalBufferID;
-	glGenBuffers(1, &vertexNormalBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexNormalBufferID);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->VN(0))*TriMeshObj->NVN(), const_cast<void*>(reinterpret_cast<void*>(&TriMeshObj->VN(0))), GL_STATIC_DRAW);
+	unsigned int planeVertexNormalBufferID;
+	glGenBuffers(1, &planeVertexNormalBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVertexNormalBufferID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertNormals[0]) * APlaneVertNormals.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertNormals[0])), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexNormal);
+	glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexNormal, sizeof(APlaneVertNormals[0]) / sizeof(APlaneVertNormals[0].x), GL_FLOAT, GL_FALSE, sizeof(APlaneVertNormals[0]), (const void*)0);
 
-	assert(sizeof(TriMeshObj->F(0).v) / sizeof(TriMeshObj->F(0).v[0]) == 3);
-	std::vector<cyPoint3f> AVertexNormals;
-	AVertexNormals.reserve(TriVertsToDraw);
-	for (unsigned int i = 0; i < TriMeshObj->NF(); i++)
-	{
-		AVertexNormals.push_back(TriMeshObj->VN(TriMeshObj->F(i).v[0]));
-		AVertexNormals.push_back(TriMeshObj->VN(TriMeshObj->F(i).v[1]));
-		AVertexNormals.push_back(TriMeshObj->VN(TriMeshObj->F(i).v[2]));
-	}
-	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->VN(0)) * TriVertsToDraw, const_cast<void*>(reinterpret_cast<void*>(&AVertexNormals[0])), GL_STATIC_DRAW);
+	//Plane TextureCoordinates
+	std::vector<cyPoint3f> APlaneVertTextures;
+	APlaneVertTextures.reserve(6);
+	cyPoint3f PlaneUVTopLeft(0.f, 1.f, 0.f);
+	cyPoint3f PlaneUVTopRight(1.f, 1.f, 0.f);
+	cyPoint3f PlaneUVBottomRight(1.f, 0.f, 0.f);
+	cyPoint3f PlaneUVBottomLeft(0.f, 0.f, 0.f);
+	APlaneVertTextures.push_back(PlaneUVTopLeft);
+	APlaneVertTextures.push_back(PlaneUVBottomLeft);
+	APlaneVertTextures.push_back(PlaneUVBottomRight);
+	APlaneVertTextures.push_back(PlaneUVBottomRight);
+	APlaneVertTextures.push_back(PlaneUVTopRight);
+	APlaneVertTextures.push_back(PlaneUVTopLeft);
 
-	glEnableVertexAttribArray(VertexInfo::VertexNormal);
-	glVertexAttribPointer(VertexInfo::VertexNormal, sizeof(TriMeshObj->VN(0)) / sizeof(TriMeshObj->VN(0).x), GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->VN(0)), (const void*)0);
+	unsigned int planeVertexTextureBufferID;
+	glGenBuffers(1, &planeVertexTextureBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVertexTextureBufferID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertTextures[0])*APlaneVertTextures.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertTextures[0])), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexTexture);
+	glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexTexture, sizeof(APlaneVertTextures[0]) / sizeof(APlaneVertTextures[0].x), GL_FLOAT, GL_FALSE, sizeof(APlaneVertTextures[0]), (const void*)0);
 
-
-	//Vertex Texture Coordinates
-	unsigned int vertexTextureBufferID;
-	glGenBuffers(1, &vertexTextureBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexTextureBufferID);
-
-	assert(sizeof(TriMeshObj->F(0).v) / sizeof(TriMeshObj->F(0).v[0]) == 3);
-	std::vector<cyPoint3f> AVertexTextures;
-	AVertexTextures.reserve(TriVertsToDraw);
-	const int NumVertexTextures = TriMeshObj->NVT();
-	for (unsigned int i = 0; i < TriMeshObj->NF(); i++)
-	{
-		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->F(i).v[0] % (NumVertexTextures - 1)));
-		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->F(i).v[1] % (NumVertexTextures - 1)));
-		AVertexTextures.push_back(TriMeshObj->VT(TriMeshObj->F(i).v[2] % (NumVertexTextures - 1)));
-	}
-	glBufferData(GL_ARRAY_BUFFER, sizeof(TriMeshObj->VT(0))*TriVertsToDraw, const_cast<void*>(reinterpret_cast<void*>(&AVertexTextures[0])), GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(VertexInfo::VertexTexture);
-	glVertexAttribPointer(VertexInfo::VertexTexture, sizeof(TriMeshObj->VT(0)) / sizeof(TriMeshObj->VT(0).x), GL_FLOAT, GL_FALSE, sizeof(TriMeshObj->VT(0)), (const void*)0);
 
 	//Texture Loading and Setup
 	//Ambient Texture
 	std::string AmbientTextureFilename = "../Resources/";
-	AmbientTextureFilename += TriMeshObj->M(0).map_Ka;
+	AmbientTextureFilename += TeapotTriMesh->M(0).map_Ka;
 	std::vector<unsigned char> AmbientTextureImageData;
 	unsigned int AmbientTextureWidth;
 	unsigned int AmbientTextureHeight;
@@ -212,7 +216,7 @@ int main(void)
 
 	//Diffuse Texture
 	std::string DiffuseTextureFilename = "../Resources/";
-	DiffuseTextureFilename += TriMeshObj->M(0).map_Kd;
+	DiffuseTextureFilename += TeapotTriMesh->M(0).map_Kd;
 	std::vector<unsigned char> DiffuseTextureImageData;
 	unsigned int DiffuseTextureWidth;
 	unsigned int DiffuseTextureHeight;
@@ -234,7 +238,7 @@ int main(void)
 
 	//Specular Texture
 	std::string SpecularTextureFilename = "../Resources/";
-	SpecularTextureFilename += TriMeshObj->M(0).map_Ks;
+	SpecularTextureFilename += TeapotTriMesh->M(0).map_Ks;
 	std::vector<unsigned char> SpecularTextureImageData;
 	unsigned int SpecularTextureWidth;
 	unsigned int SpecularTextureHeight;
@@ -255,8 +259,11 @@ int main(void)
 	glTexParameterf(specularTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
 
 
-	Engine::Rendering::BuildAndUseProgram();
+	//Engine::Rendering::BuildAndUseProgram();
+	cyGLSLProgram* MainSceneProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::SceneFragmentShaderFile);
+	cyGLSLProgram* RenderTextureProgram = Engine::Rendering::BuildProgram(Engine::Rendering::RenderTextureVertexShaderFile, Engine::Rendering::RenderTextureFragmentShaderFile);
 
+	
 	float fovy = 45.f;
 	float FOV = 1/tan(fovy);
 	//float aspect = 2.f; //2:1
@@ -264,59 +271,34 @@ int main(void)
 	float zNear = 0.1f;
 	float zFar = 100.f;
 
-	cyMatrix4f CameraMatrix(
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, -27.0f,
-		0.0f, 0.f, 0.f, 1.0f
-	);
-	cyMatrix4f const ProjectionMatrix(
-		FOV/aspect, 0.0f,                          0.0f,                                0.0f,
-		0.0f,       FOV,                           0.0f,                                0.0f,
-		0.0f,       0.0f, (zFar + zNear)/(zNear - zFar), (2.f * zFar * zNear)/(zNear - zFar),
-		0.0f,       0.0f,                         -1.0f,                                 0.0f
-	);
+	Engine::Entity::Camera* MainSceneCamera = 
+		new Engine::Entity::Camera(new Engine::Entity::GameObject(), 
+		fovy, WindowWidth, WindowHeight, zNear, zFar);
 
-	cyMatrix4f FinalTransformMatrix;
-	FinalTransformMatrix = ProjectionMatrix * CameraMatrix;
+	MainSceneCamera->GetGameObject()->SetPosition(cyPoint3f(0.f, 0.f, -60.f));
+	MainSceneCamera->GetGameObject()->SetRotation(cyPoint3f(0.f, 0.f, 0.f));
 
-	Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", FinalTransformMatrix.data);
+	float* PerspectiveTest = MainSceneCamera->GetPerspectiveProjection().data;
+	float* CameraTransformTest = MainSceneCamera->GetGameObject()->GetTransform().data;
 
-	cyMatrix4f const RotateMatrix(
-		cos(0.005f), 0.0f, sin(0.005f), 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		-sin(0.005f), 0.0f, cos(0.005f), 0.0f,
-		0.0f, 0.f, 0.f, 1.0f
-	);
-
-	cyMatrix4f const XRotateMatrix(
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, cos(-PI / 4), -sin(-PI / 4), 0.0f,
-		0.0f, sin(-PI / 4), cos(-PI / 4), 0.0f,
-		0.0f, 0.f, 0.f, 1.0f
-	);
-
-	cyMatrix4f const YRotateMatrix(
-		cos(PI / 8), 0.0f, sin(PI / 8), 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		-sin(PI / 8), 0.0f, cos(PI / 8), 0.0f,
-		0.0f, 0.f, 0.f, 1.0f
-	);
-
-	cyMatrix4f const ZRotateMatrix(
-		cos(PI / 4), -sin(PI / 4), 0.0f, 0.0f,
-		sin(PI / 4), cos(PI / 4), 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.f, 0.f, 1.0f
-	);
-
-	//FinalTransformMatrix = ProjectionMatrix * CameraMatrix * XRotateMatrix;
-	//Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Transformation", FinalTransformMatrix.data);
-	CameraMatrix *= XRotateMatrix;
-	Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Projection", ProjectionMatrix.data);
-	Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Camera", CameraMatrix.data);
+	//Engine::Input::CameraGameObject = MainSceneCamera->GetGameObject();
+	Engine::Input::SetCameraGameObject(MainSceneCamera->GetGameObject());
 
 	
+	//Create RenderTexture for teapot's RenderToTexture operation
+	glActiveTexture(GL_TEXTURE3);
+	cyGLRenderTexture2D* SceneRenderTexture = new cyGLRenderTexture2D();
+	bool bRenderTextureReady = SceneRenderTexture->Initialize(true, 4, WindowWidth, WindowHeight, cy::GL::TYPE_UBYTE);
+	assert(bRenderTextureReady);
+
+	//Set texture settings for texture that will be used by Plane
+	//SceneRenderTexture->BindTexture(3);
+	//glActiveTexture(GL_TEXTURE3);
+	SceneRenderTexture->BindTexture();
+	SceneRenderTexture->SetTextureFilteringMode(GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+	SceneRenderTexture->BuildTextureMipmaps();
+	glTexParameterf(SceneRenderTexture->GetTextureID(), GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -326,33 +308,81 @@ int main(void)
 		 dt = Engine::Timing::GetLastFrameTime_ms();
 
 		/* Render here */
+		 glClearColor(1.f, 0.f, 0.f, 1.f);
 		 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//CameraMatrix *= RotateMatrix;
-		//Engine::Rendering::GetGLProgram()->SetUniformMatrix4("u_Camera", CameraMatrix.data);
+		//MainSceneProgram->SetUniformMatrix4("u_Camera", CameraMatrix.data);
 		
-		
+
+		//TODO handle order of code if Rendering Update does all the rendering
 		Engine::Input::Update(window, dt);
 		Engine::Rendering::Update(window, dt);
+		
+		//Bind our own RenderTexture
+		/*glActiveTexture(GL_TEXTURE3);
+		SceneRenderTexture->Bind();
+		
+		//SceneRenderTexture->BindTexture();
+		glClearColor(0.f, 0.f, 1.f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
+		
+		//Render the scene to our RenderTexture
+		MainSceneProgram->Bind();
+
+		//MainSceneProgram->SetUniformMatrix4("u_Projection", ProjectionMatrix.data);
+		//MainSceneProgram->SetUniformMatrix4("u_Camera", CameraMatrix.data);
+		MainSceneProgram->SetUniformMatrix4("u_Projection", MainSceneCamera->GetPerspectiveProjection().data);
+		MainSceneProgram->SetUniformMatrix4("u_Camera", MainSceneCamera->GetGameObject()->GetTransform().data);
 
 		const cyPoint3f PointLightPos3 = Engine::Rendering::GetRenderPointLight().GetPosition().GetNonHomogeneous();
-		Engine::Rendering::GetGLProgram()->SetUniform("u_LightPosition", PointLightPos3);
-		//Engine::Rendering::GetGLProgram()->SetUniform("u_DiffuseColor", cyPoint4f(1.f, 0.f, 0.f, 1.f));
-		//Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularColor", cyPoint4f(1.f, 1.f, 1.f, 1.f));
-		Engine::Rendering::GetGLProgram()->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
-		//Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularExponent", Engine::Rendering::MaterialSpecularExponent);
-		Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);
+		MainSceneProgram->SetUniform("u_LightPosition", PointLightPos3);
+		MainSceneProgram->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
+		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::MaterialSpecularExponent);
+		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);
 
 		//Set TextureSampler uniforms
-		Engine::Rendering::GetGLProgram()->SetUniform("u_AmbientTextureSampler", GL_TEXTURE0);
-		Engine::Rendering::GetGLProgram()->SetUniform("u_DiffuseTextureSampler", GL_TEXTURE1);
-		Engine::Rendering::GetGLProgram()->SetUniform("u_SpecularTextureSampler", GL_TEXTURE2);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, ambientTextureID);
+		MainSceneProgram->SetUniform("u_AmbientTextureSampler", GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
+		MainSceneProgram->SetUniform("u_DiffuseTextureSampler", GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, specularTextureID);
+		MainSceneProgram->SetUniform("u_SpecularTextureSampler", GL_TEXTURE2);
 
 		//Drawing code
-		glBindVertexArray(vertexArrayID);
-		//glBindBuffer(GL_ARRAY_BUFFER, vertexPosBufferID);
-		glDrawArrays(GL_TRIANGLES, 0, AVertexPositions.size());
-		//glDrawElements(GL_TRIANGLES, TriMeshObj->NF() * sizeof(TriMeshObj->F(0))/sizeof(TriMeshObj->F(0).v[0]), GL_UNSIGNED_INT, &TriMeshObj->F(0));
+		glBindVertexArray(teapotVertexArrayID);
+
+		//TODO put the vertices and all data into GameObject or something
+		glDrawArrays(GL_TRIANGLES, 0, TeapotTriMesh->NF() * sizeof(TeapotTriMesh->F(0).v) / sizeof(TeapotTriMesh->F(0).v[0]));
+		//glDrawElements(GL_TRIANGLES, TeapotTriMesh->NF() * sizeof(TeapotTriMesh->F(0))/sizeof(TeapotTriMesh->F(0).v[0]), GL_UNSIGNED_INT, &TeapotTriMesh->F(0));
+
+		
+		//Unbind our RenderTexture so normal rendering buffers are brought back
+		/*SceneRenderTexture->Unbind();
+		
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		RenderTextureProgram->Bind();
+
+		RenderTextureProgram->SetUniformMatrix4("u_PlaneProjection", ProjectionMatrix.data);
+		RenderTextureProgram->SetUniformMatrix4("u_PlaneCamera", CameraMatrix.data);
+
+		//Bind the texture that the teapot scene was rendered to as the texture for the plane
+		//SceneRenderTexture->BindTexture(3);
+		SceneRenderTexture->BuildTextureMipmaps();
+		SceneRenderTexture->BindTexture(3);
+		RenderTextureProgram->SetUniform("u_RenderToSampler", GL_TEXTURE3);
+
+		//Draw plane on usual rendering buffers
+		
+		
+		//Render the plane
+		glBindVertexArray(planeVertexArrayID);
+		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());*/
+		
+
 		//Drawing code end
 
 		/* Swap front and back buffers */

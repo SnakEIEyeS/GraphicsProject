@@ -18,8 +18,7 @@ namespace Engine
 {
 	namespace Rendering
 	{
-		static const char* VertexShaderFile = "res/TexturesVS.shader";
-		static const char* FragmentShaderFile = "res/TexturesFS.shader";
+		
 
 		static const float ColorDelta = 0.00025f;
 		//const float ColorDeltaEpsilon = 0.0001f;
@@ -46,8 +45,8 @@ namespace Engine
 
 			if (glfwGetKey(window, GLFW_KEY_F6) == GLFW_PRESS)
 			{
-				std::cout << "Recompiling shaders...\n";
-				Engine::Rendering::BuildAndUseProgram();
+				//std::cout << "Recompiling shaders...\n";
+				//Engine::Rendering::BuildAndUseProgram();
 			}
 		}
 
@@ -115,9 +114,24 @@ namespace Engine
 			return cyGraphicsProgram;
 		}
 
+		cyGLSLProgram * BuildProgram(const char * i_VertexShaderFile, const char * i_FragmentShaderFile)
+		{
+			cyGLSLProgram* ProgramToReturn = new cyGLSLProgram();
+			ProgramToReturn->BuildFiles(i_VertexShaderFile, i_FragmentShaderFile, nullptr, nullptr, nullptr);
+			return ProgramToReturn;
+		}
+
 		bool BuildAndUseProgram()
 		{
-			bool built = GetGLProgram()->BuildFiles(VertexShaderFile, FragmentShaderFile, nullptr, nullptr, nullptr);
+			bool built = GetGLProgram()->BuildFiles(SceneVertexShaderFile, SceneFragmentShaderFile, nullptr, nullptr, nullptr);
+			assert(built);
+			GetGLProgram()->Bind();
+			return true;
+		}
+
+		bool BuildAndUseProgram(const char * i_VertexShaderFile, const char * i_FragmentShaderFile)
+		{
+			bool built = GetGLProgram()->BuildFiles(i_VertexShaderFile, i_VertexShaderFile, nullptr, nullptr, nullptr);
 			assert(built);
 			GetGLProgram()->Bind();
 			return true;
