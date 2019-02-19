@@ -327,12 +327,12 @@ int main(void)
 		Engine::Rendering::Update(window, dt);
 		
 		//Bind our own RenderTexture
-		/*glActiveTexture(GL_TEXTURE3);
+		glActiveTexture(GL_TEXTURE3);
 		SceneRenderTexture->Bind();
 		
 		//SceneRenderTexture->BindTexture();
 		glClearColor(0.f, 0.f, 1.f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		//Render the scene to our RenderTexture
 		MainSceneProgram->Bind();
@@ -368,7 +368,7 @@ int main(void)
 
 		
 		//Unbind our RenderTexture so normal rendering buffers are brought back
-		/*SceneRenderTexture->Unbind();
+		SceneRenderTexture->Unbind();
 		
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		RenderTextureProgram->Bind();
@@ -384,7 +384,7 @@ int main(void)
 		RenderTextureProgram->SetUniform("u_RenderToSampler", GL_TEXTURE3);
 
 		//Draw plane on usual rendering buffers
-		*/
+		
 		
 		//Render the plane
 		MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
