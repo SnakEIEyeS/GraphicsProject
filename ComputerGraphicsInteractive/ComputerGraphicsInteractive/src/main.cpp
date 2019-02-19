@@ -14,6 +14,7 @@
 #include "LightSource/PointLight.h"
 #include "ModelHandler/ModelHandler.h"
 #include "Rendering/Rendering.h"
+#include "StaticMesh/StaticMesh.h"
 
 #include "cyCodeBase/cyGL.h"
 #include "cyCodeBase/cyMatrix.h"
@@ -118,6 +119,10 @@ int main(void)
 	Engine::ModelHandling::GetModelHandler()->AddVertexPositions(TeapotTriMesh, teapotVertexArrayID);
 	Engine::ModelHandling::GetModelHandler()->AddVertexNormals(TeapotTriMesh, teapotVertexArrayID);
 	Engine::ModelHandling::GetModelHandler()->AddVertexTextureCoordinates(TeapotTriMesh, teapotVertexArrayID);
+
+	Engine::Entity::StaticMesh* TeapotStaticMesh = new Engine::Entity::StaticMesh(new Engine::Entity::GameObject(), teapotVertexArrayID);
+	const_cast<Engine::Entity::GameObject*>(TeapotStaticMesh->GetGameObject())->SetPosition(cyPoint3f(0.f, 0.f, 0.f));
+	const_cast<Engine::Entity::GameObject*>(TeapotStaticMesh->GetGameObject())->SetRotation(cyPoint3f(0.f, 0.f, 0.f));
 	
 
 	//Render Plane
@@ -151,7 +156,7 @@ int main(void)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertPos[0]) * APlaneVertPos.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertPos[0])), GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexPosition);
-	glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexPosition, 3, GL_FLOAT, GL_FALSE, sizeof(TeapotTriMesh->V(0)), (const void*)0);
+	glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexPosition, 3, GL_FLOAT, GL_FALSE, sizeof(APlaneVertPos[0]), (const void*)0);
 
 	//Plane VertNormals
 	std::vector<cyPoint3f> APlaneVertNormals;
@@ -189,6 +194,12 @@ int main(void)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertTextures[0])*APlaneVertTextures.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertTextures[0])), GL_STATIC_DRAW);
 	glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexTexture);
 	glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexTexture, sizeof(APlaneVertTextures[0]) / sizeof(APlaneVertTextures[0].x), GL_FLOAT, GL_FALSE, sizeof(APlaneVertTextures[0]), (const void*)0);
+
+	Engine::Entity::StaticMesh* PlaneStaticMesh = new Engine::Entity::StaticMesh(new Engine::Entity::GameObject(), planeVertexArrayID);
+	const_cast<Engine::Entity::GameObject*>(PlaneStaticMesh->GetGameObject())->SetPosition(cyPoint3f(0.f, 0.f, 0.f));
+	const_cast<Engine::Entity::GameObject*>(PlaneStaticMesh->GetGameObject())->SetRotation(cyPoint3f(0.f, 0.f, 0.f));
+	//Bind Plane to be transformed by holding down Alt
+	Engine::Input::SetAltBoundGameObject(const_cast<Engine::Entity::GameObject*>(PlaneStaticMesh->GetGameObject()));
 
 
 	//Texture Loading and Setup
@@ -269,7 +280,7 @@ int main(void)
 	//float aspect = 2.f; //2:1
 	float aspect = ((float)WindowWidth) / WindowHeight;
 	float zNear = 0.1f;
-	float zFar = 100.f;
+	float zFar = 1000.f;
 
 	Engine::Entity::Camera* MainSceneCamera = 
 		new Engine::Entity::Camera(new Engine::Entity::GameObject(), 
@@ -308,12 +319,8 @@ int main(void)
 		 dt = Engine::Timing::GetLastFrameTime_ms();
 
 		/* Render here */
-		 glClearColor(1.f, 0.f, 0.f, 1.f);
+		 glClearColor(0.f, 0.f, 0.f, 1.f);
 		 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		//CameraMatrix *= RotateMatrix;
-		//MainSceneProgram->SetUniformMatrix4("u_Camera", CameraMatrix.data);
-		
 
 		//TODO handle order of code if Rendering Update does all the rendering
 		Engine::Input::Update(window, dt);
@@ -330,11 +337,10 @@ int main(void)
 		//Render the scene to our RenderTexture
 		MainSceneProgram->Bind();
 
-		//MainSceneProgram->SetUniformMatrix4("u_Projection", ProjectionMatrix.data);
-		//MainSceneProgram->SetUniformMatrix4("u_Camera", CameraMatrix.data);
 		MainSceneProgram->SetUniformMatrix4("u_Projection", MainSceneCamera->GetPerspectiveProjection().data);
 		MainSceneProgram->SetUniformMatrix4("u_Camera", MainSceneCamera->GetGameObject()->GetTransform().data);
 
+		//TODO make PointLight have a GameObject
 		const cyPoint3f PointLightPos3 = Engine::Rendering::GetRenderPointLight().GetPosition().GetNonHomogeneous();
 		MainSceneProgram->SetUniform("u_LightPosition", PointLightPos3);
 		MainSceneProgram->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
@@ -353,7 +359,8 @@ int main(void)
 		MainSceneProgram->SetUniform("u_SpecularTextureSampler", GL_TEXTURE2);
 
 		//Drawing code
-		glBindVertexArray(teapotVertexArrayID);
+		MainSceneProgram->SetUniformMatrix4("u_Object", TeapotStaticMesh->GetGameObject()->GetTransform().data); 
+		glBindVertexArray(TeapotStaticMesh->GetVertexArrayID());
 
 		//TODO put the vertices and all data into GameObject or something
 		glDrawArrays(GL_TRIANGLES, 0, TeapotTriMesh->NF() * sizeof(TeapotTriMesh->F(0).v) / sizeof(TeapotTriMesh->F(0).v[0]));
@@ -366,8 +373,9 @@ int main(void)
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		RenderTextureProgram->Bind();
 
-		RenderTextureProgram->SetUniformMatrix4("u_PlaneProjection", ProjectionMatrix.data);
-		RenderTextureProgram->SetUniformMatrix4("u_PlaneCamera", CameraMatrix.data);
+		RenderTextureProgram->SetUniformMatrix4("u_PlaneProjection", MainSceneCamera->GetPerspectiveProjection().data);
+		RenderTextureProgram->SetUniformMatrix4("u_PlaneCamera", MainSceneCamera->GetGameObject()->GetTransform().data);
+		RenderTextureProgram->SetUniformMatrix4("u_PlaneObject", PlaneStaticMesh->GetGameObject()->GetTransform().data);
 
 		//Bind the texture that the teapot scene was rendered to as the texture for the plane
 		//SceneRenderTexture->BindTexture(3);
@@ -376,11 +384,12 @@ int main(void)
 		RenderTextureProgram->SetUniform("u_RenderToSampler", GL_TEXTURE3);
 
 		//Draw plane on usual rendering buffers
-		
+		*/
 		
 		//Render the plane
-		glBindVertexArray(planeVertexArrayID);
-		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());*/
+		MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
+		glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
+		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
 		
 
 		//Drawing code end
