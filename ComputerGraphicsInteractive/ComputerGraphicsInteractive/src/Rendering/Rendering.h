@@ -28,6 +28,9 @@ namespace Engine
 
 		static const char* RenderTextureVertexShaderFile = "res/RenderToTextureVS.shader";
 		static const char* RenderTextureFragmentShaderFile = "res/RenderToTextureFS.shader";
+
+		static const char* CubeMapTextureVertexShaderFile = "res/CubeMapVS.shader";
+		static const char* CubeMapTextureFragmentShaderFile = "res/CubeMapFS.shader";
 		
 		struct Color
 		{

@@ -273,6 +273,7 @@ int main(void)
 	//Engine::Rendering::BuildAndUseProgram();
 	cyGLSLProgram* MainSceneProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::SceneFragmentShaderFile);
 	cyGLSLProgram* RenderTextureProgram = Engine::Rendering::BuildProgram(Engine::Rendering::RenderTextureVertexShaderFile, Engine::Rendering::RenderTextureFragmentShaderFile);
+	cyGLSLProgram* CubeMapTextureProgram = Engine::Rendering::BuildProgram(Engine::Rendering::CubeMapTextureVertexShaderFile, Engine::Rendering::CubeMapTextureFragmentShaderFile);
 
 	
 	float fovy = 45.f;
@@ -303,12 +304,68 @@ int main(void)
 	assert(bRenderTextureReady);
 
 	//Set texture settings for texture that will be used by Plane
-	//SceneRenderTexture->BindTexture(3);
+	SceneRenderTexture->BindTexture(3);
 	//glActiveTexture(GL_TEXTURE3);
-	SceneRenderTexture->BindTexture();
+	//SceneRenderTexture->BindTexture();
 	SceneRenderTexture->SetTextureFilteringMode(GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 	SceneRenderTexture->BuildTextureMipmaps();
 	glTexParameterf(SceneRenderTexture->GetTextureID(), GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+
+	//CubeMap
+	unsigned int cubeMapVertexArrayID;
+	glGenVertexArrays(1, &cubeMapVertexArrayID);
+	glBindVertexArray(cubeMapVertexArrayID);
+
+	//Loading Cube
+	cyTriMesh* CubeTriMesh = new cyTriMesh();
+	CubeTriMesh->LoadFromFileObj("../Resources/CubeMap/cube.obj", false);
+	std::cout << "\nCubeTriMesh details:\n";
+	std::cout << "Number of Vertices: " << CubeTriMesh->NV() << "\n";
+	std::cout << "Number of VertNormals: " << CubeTriMesh->NVN() << "\n";
+	std::cout << "Number of Faces: " << CubeTriMesh->NF() << "\n";
+	std::cout << "Number of indices in Faces: " << sizeof(CubeTriMesh->F(0).v) / sizeof(CubeTriMesh->F(0).v[0]) << "\n";
+	std::cout << "Number of VertexTexCoords: " << CubeTriMesh->NVT() << "\n";
+	std::cout << "Number of Materials: " << CubeTriMesh->NM() << "\n";
+
+
+	Engine::ModelHandling::GetModelHandler()->AddVertexPositions(CubeTriMesh, cubeMapVertexArrayID);
+
+	Engine::Entity::StaticMesh* CubeMapStaticMesh = new Engine::Entity::StaticMesh(new Engine::Entity::GameObject(), cubeMapVertexArrayID);
+	const_cast<Engine::Entity::GameObject*>(CubeMapStaticMesh->GetGameObject())->SetPosition(MainSceneCamera->GetGameObject()->GetPosition());
+	const_cast<Engine::Entity::GameObject*>(CubeMapStaticMesh->GetGameObject())->SetRotation(cyPoint3f(0.f, 0.f, 0.f));
+
+	//CubeMap Texture
+	glActiveTexture(GL_TEXTURE4);
+	unsigned int cubeMapTextureID;
+	glGenTextures(1, &cubeMapTextureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTextureID);
+
+	std::string CubeMapTextureFaces[6] = { "../Resources/CubeMap/cubemap_posx.png", "../Resources/CubeMap/cubemap_negx.png",
+											"../Resources/CubeMap/cubemap_posy.png", "../Resources/CubeMap/cubemap_negy.png",
+											"../Resources/CubeMap/cubemap_posz.png", "../Resources/CubeMap/cubemap_negz.png" 
+										};
+
+	unsigned int numCubeMapTextureFaces = sizeof(CubeMapTextureFaces) / sizeof(CubeMapTextureFaces[0]);
+	
+	std::vector<unsigned char> CubeMapTextureFaceData;
+	unsigned int CubeMapFaceWidth;
+	unsigned int CubeMapFaceHeight;
+	
+	for (unsigned int i = 0; i < numCubeMapTextureFaces; i++)
+	{
+		Engine::Rendering::DecodeTexturePNG(CubeMapTextureFaces[i], CubeMapTextureFaceData, CubeMapFaceWidth, CubeMapFaceHeight);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, CubeMapFaceWidth, CubeMapFaceHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&CubeMapTextureFaceData[0]);
+	}
+	
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	glTexParameterf(specularTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
 
 
 	glEnable(GL_DEPTH_TEST);
@@ -319,20 +376,35 @@ int main(void)
 		 dt = Engine::Timing::GetLastFrameTime_ms();
 
 		/* Render here */
-		 glClearColor(0.f, 0.f, 0.f, 1.f);
+		 //glClearColor(0.f, 0.f, 0.f, 1.f);
 		 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//TODO handle order of code if Rendering Update does all the rendering
 		Engine::Input::Update(window, dt);
 		Engine::Rendering::Update(window, dt);
+
+		//Render CubeMap
+		glDisable(GL_DEPTH_TEST);
+		CubeMapStaticMesh->GetGameObject()->SetPosition(MainSceneCamera->GetGameObject()->GetPosition());
+		CubeMapTextureProgram->Bind();
+		CubeMapTextureProgram->SetUniform("u_CubeMapSampler", GL_TEXTURE4);
+		CubeMapTextureProgram->SetUniformMatrix4("u_Projection", MainSceneCamera->GetPerspectiveProjection().data);
+		CubeMapTextureProgram->SetUniformMatrix4("u_Camera", MainSceneCamera->GetGameObject()->GetTransform().data);
+		CubeMapTextureProgram->SetUniformMatrix4("u_CubeObject", CubeMapStaticMesh->GetGameObject()->GetTransform().data);
+
+		glBindVertexArray(CubeMapStaticMesh->GetVertexArrayID());
+		glDrawArrays(GL_TRIANGLES, 0, CubeTriMesh->NF() * sizeof(CubeTriMesh->F(0).v) / sizeof(CubeTriMesh->F(0).v[0]));
+		glEnable(GL_DEPTH_TEST);
 		
+		/*
 		//Bind our own RenderTexture
-		glActiveTexture(GL_TEXTURE3);
+		//glActiveTexture(GL_TEXTURE3);
 		SceneRenderTexture->Bind();
 		
-		//SceneRenderTexture->BindTexture();
+		SceneRenderTexture->BindTexture(3);
 		glClearColor(0.f, 0.f, 1.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		*/
 		
 		//Render the scene to our RenderTexture
 		MainSceneProgram->Bind();
@@ -348,14 +420,14 @@ int main(void)
 		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);
 
 		//Set TextureSampler uniforms
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, ambientTextureID);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, ambientTextureID);
 		MainSceneProgram->SetUniform("u_AmbientTextureSampler", GL_TEXTURE0);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
+		//glActiveTexture(GL_TEXTURE1);
+		//glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
 		MainSceneProgram->SetUniform("u_DiffuseTextureSampler", GL_TEXTURE1);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, specularTextureID);
+		//glActiveTexture(GL_TEXTURE2);
+		//glBindTexture(GL_TEXTURE_2D, specularTextureID);
 		MainSceneProgram->SetUniform("u_SpecularTextureSampler", GL_TEXTURE2);
 
 		//Drawing code
@@ -368,7 +440,7 @@ int main(void)
 
 		
 		//Unbind our RenderTexture so normal rendering buffers are brought back
-		SceneRenderTexture->Unbind();
+		//SceneRenderTexture->Unbind();
 		
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		RenderTextureProgram->Bind();
@@ -378,10 +450,11 @@ int main(void)
 		RenderTextureProgram->SetUniformMatrix4("u_PlaneObject", PlaneStaticMesh->GetGameObject()->GetTransform().data);
 
 		//Bind the texture that the teapot scene was rendered to as the texture for the plane
-		//SceneRenderTexture->BindTexture(3);
+		/*SceneRenderTexture->BindTexture(3);
 		SceneRenderTexture->BuildTextureMipmaps();
-		SceneRenderTexture->BindTexture(3);
+		//SceneRenderTexture->BindTexture(3);
 		RenderTextureProgram->SetUniform("u_RenderToSampler", GL_TEXTURE3);
+		*/
 
 		//Draw plane on usual rendering buffers
 		

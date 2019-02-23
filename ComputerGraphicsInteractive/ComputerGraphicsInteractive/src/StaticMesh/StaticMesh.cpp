@@ -23,7 +23,7 @@ Engine::Entity::StaticMesh::StaticMesh(GameObject * i_pGameObject, unsigned int 
 {
 }
 
-const Engine::Entity::GameObject * Engine::Entity::StaticMesh::GetGameObject() const
+Engine::Entity::GameObject * Engine::Entity::StaticMesh::GetGameObject() const
 {
 	return m_pGameObject;
 }

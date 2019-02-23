@@ -19,7 +19,7 @@ namespace Engine
 			StaticMesh(GameObject* i_pGameObject);
 			StaticMesh(GameObject* i_pGameObject, unsigned int i_VertexArrayID);
 
-			const GameObject* GetGameObject() const;
+			GameObject* GetGameObject() const;
 			void SetGameObject(GameObject* i_pGameObject);
 
 			unsigned int GetVertexArrayID();
