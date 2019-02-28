@@ -281,7 +281,7 @@ int main(void)
 	//float aspect = 2.f; //2:1
 	float aspect = ((float)WindowWidth) / WindowHeight;
 	float zNear = 0.1f;
-	float zFar = 1000.f;
+	float zFar = 10000.f;
 
 	Engine::Entity::Camera* MainSceneCamera = 
 		new Engine::Entity::Camera(new Engine::Entity::GameObject(), 
@@ -385,7 +385,11 @@ int main(void)
 
 		//Render CubeMap
 		glDisable(GL_DEPTH_TEST);
-		CubeMapStaticMesh->GetGameObject()->SetPosition(MainSceneCamera->GetGameObject()->GetPosition());
+		cyPoint3f NewPos(-MainSceneCamera->GetGameObject()->GetPosition().x, -MainSceneCamera->GetGameObject()->GetPosition().y, -MainSceneCamera->GetGameObject()->GetPosition().z);
+		CubeMapStaticMesh->GetGameObject()->SetPosition(NewPos);
+		//CubeMapStaticMesh->GetGameObject()->SetPosition(MainSceneCamera->GetGameObject()->GetPosition());
+		std::cout << "\nCamera: " << MainSceneCamera->GetGameObject()->GetPosition().x << " " << MainSceneCamera->GetGameObject()->GetPosition().y << " " << MainSceneCamera->GetGameObject()->GetPosition().z;
+		std::cout << "\nCubeMap: " << CubeMapStaticMesh->GetGameObject()->GetPosition().x << " " << CubeMapStaticMesh->GetGameObject()->GetPosition().y << " " << CubeMapStaticMesh->GetGameObject()->GetPosition().z;
 		CubeMapTextureProgram->Bind();
 		CubeMapTextureProgram->SetUniform("u_CubeMapSampler", GL_TEXTURE4);
 		CubeMapTextureProgram->SetUniformMatrix4("u_Projection", MainSceneCamera->GetPerspectiveProjection().data);

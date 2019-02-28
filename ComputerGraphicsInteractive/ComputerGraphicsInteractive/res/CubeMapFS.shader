@@ -13,6 +13,6 @@ void main()
 
 	o_ColorFS = sampledCubeColor;
 
-	o_ColorFS = vec4(1.f, 1.f, 1.f, 1.f);
+	o_ColorFS = vec4(1.f, 0.f, 0.f, 1.f);
 }
 
