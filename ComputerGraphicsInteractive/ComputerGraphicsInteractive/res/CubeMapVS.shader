@@ -15,4 +15,5 @@ void main()
 	//gl_Position = u_Camera * u_CubeObject * vec4(i_Pos, 1.f);
 
 	o_VertexTexture = vec3(i_Pos.x / abs(i_Pos.x), i_Pos.y / abs(i_Pos.y), i_Pos.z / abs(i_Pos.z));
+	//o_VertexTexture = i_Pos;
 }

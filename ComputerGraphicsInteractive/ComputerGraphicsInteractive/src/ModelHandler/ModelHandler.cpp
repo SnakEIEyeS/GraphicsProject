@@ -6,6 +6,7 @@
 #include <GL/glfw3.h>
 
 #include "../cyCodeBase/cyTriMesh.h"
+#include "../Rendering/Rendering.h"
 
 namespace Engine
 {
@@ -99,6 +100,57 @@ namespace Engine
 			glVertexAttribPointer(VertexInfo::VertexTexture, sizeof(i_TriMeshObj->VT(0)) / sizeof(i_TriMeshObj->VT(0).x), GL_FLOAT, GL_FALSE, sizeof(i_TriMeshObj->VT(0)), (const void*)0);
 
 			return vertexTextureBufferID;
+		}
+
+		unsigned int ModelHandler::CreateTexture2D(const char* i_TextureFileName, const unsigned int &  i_TextureUnitIndex)
+		{
+			std::vector<unsigned char> TextureImageData;
+			unsigned int TextureWidth;
+			unsigned int TextureHeight;
+			Engine::Rendering::DecodeTexturePNG(i_TextureFileName, TextureImageData, TextureWidth, TextureHeight);
+
+			glActiveTexture(GL_TEXTURE0 + i_TextureUnitIndex);
+			unsigned int CreatedTextureID;
+			glGenTextures(1, &CreatedTextureID);
+			glBindTexture(GL_TEXTURE_2D, CreatedTextureID);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TextureWidth, TextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&TextureImageData[0]);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexParameterf(CreatedTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+			
+			return CreatedTextureID;
+		}
+
+		unsigned int ModelHandler::CreateTextureCubeMap(std::string* i_ArrTextureFaceFileNames, const unsigned int & i_NumTextureFaces, const unsigned int & i_TextureUnitIndex)
+		{
+			glActiveTexture(GL_TEXTURE0 + i_TextureUnitIndex);
+			unsigned int CreatedCubeMapTextureID;
+			glGenTextures(1, &CreatedCubeMapTextureID);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, CreatedCubeMapTextureID);
+
+			std::vector<unsigned char> CubeMapTextureFaceData;
+			unsigned int CubeMapFaceWidth;
+			unsigned int CubeMapFaceHeight;
+
+			for (unsigned int i = 0; i < i_NumTextureFaces; i++)
+			{
+				Engine::Rendering::DecodeTexturePNG(i_ArrTextureFaceFileNames[i], CubeMapTextureFaceData, CubeMapFaceWidth, CubeMapFaceHeight);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, CubeMapFaceWidth, CubeMapFaceHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&CubeMapTextureFaceData[0]);
+				//std::cout << CubeMapFaceWidth << " " << CubeMapFaceHeight << "\n";
+			}
+
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+			glTexParameterf(CreatedCubeMapTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+			return CreatedCubeMapTextureID;
 		}
 
 

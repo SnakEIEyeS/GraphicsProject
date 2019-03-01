@@ -202,72 +202,24 @@ int main(void)
 	Engine::Input::SetAltBoundGameObject(const_cast<Engine::Entity::GameObject*>(PlaneStaticMesh->GetGameObject()));
 
 
-	//Texture Loading and Setup
+	//Teapot Texture Loading and Setup
 	//Ambient Texture
-	std::string AmbientTextureFilename = "../Resources/";
-	AmbientTextureFilename += TeapotTriMesh->M(0).map_Ka;
-	std::vector<unsigned char> AmbientTextureImageData;
-	unsigned int AmbientTextureWidth;
-	unsigned int AmbientTextureHeight;
-	Engine::Rendering::DecodeTexturePNG(AmbientTextureFilename, AmbientTextureImageData, AmbientTextureWidth, AmbientTextureHeight);
-	std::cout << "\nAmbient Texture details:\n";
-	std::cout << "\tImage Width: " << AmbientTextureWidth << "\n";
-	std::cout << "\tImage Height: " << AmbientTextureHeight << "\n";
-
-	glActiveTexture(GL_TEXTURE0);
-	unsigned int ambientTextureID;
-	glGenTextures(1, &ambientTextureID);
-	glBindTexture(GL_TEXTURE_2D, ambientTextureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, AmbientTextureWidth, AmbientTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&AmbientTextureImageData[0]);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameterf(ambientTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+	//std::string AmbientTextureFilename = "../Resources/";
+	//AmbientTextureFilename += TeapotTriMesh->M(0).map_Ka;
+	std::string AmbientTextureFilename = "../Resources/CubeMap/cubemap_posx.png";
+	TeapotStaticMesh->m_AmbientTextureID = Engine::ModelHandling::GetModelHandler()->CreateTexture2D(AmbientTextureFilename.c_str(), 0);
 
 	//Diffuse Texture
-	std::string DiffuseTextureFilename = "../Resources/";
-	DiffuseTextureFilename += TeapotTriMesh->M(0).map_Kd;
-	std::vector<unsigned char> DiffuseTextureImageData;
-	unsigned int DiffuseTextureWidth;
-	unsigned int DiffuseTextureHeight;
-	Engine::Rendering::DecodeTexturePNG(DiffuseTextureFilename, DiffuseTextureImageData, DiffuseTextureWidth, DiffuseTextureHeight);
-	std::cout << "\nDiffuse Texture details:\n";
-	std::cout << "\tImage Width: " << DiffuseTextureWidth << "\n";
-	std::cout << "\tImage Height: " << DiffuseTextureHeight << "\n";
-
-	glActiveTexture(GL_TEXTURE1);
-	unsigned int diffuseTextureID;
-	glGenTextures(1, &diffuseTextureID);
-	glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DiffuseTextureWidth, DiffuseTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&DiffuseTextureImageData[0]);
-	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameterf(diffuseTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+	//std::string DiffuseTextureFilename = "../Resources/";
+	//DiffuseTextureFilename += TeapotTriMesh->M(0).map_Kd;
+	std::string DiffuseTextureFilename = "../Resources/CubeMap/cubemap_posx.png";
+	TeapotStaticMesh->m_DiffuseTextureID = Engine::ModelHandling::GetModelHandler()->CreateTexture2D(DiffuseTextureFilename.c_str(), 1);
 
 	//Specular Texture
-	std::string SpecularTextureFilename = "../Resources/";
-	SpecularTextureFilename += TeapotTriMesh->M(0).map_Ks;
-	std::vector<unsigned char> SpecularTextureImageData;
-	unsigned int SpecularTextureWidth;
-	unsigned int SpecularTextureHeight;
-	Engine::Rendering::DecodeTexturePNG(SpecularTextureFilename, SpecularTextureImageData, SpecularTextureWidth, SpecularTextureHeight);
-	std::cout << "\nSpecular Texture details:\n";
-	std::cout << "\tImage Width: " << SpecularTextureWidth << "\n";
-	std::cout << "\tImage Height: " << SpecularTextureHeight << "\n";
-
-	glActiveTexture(GL_TEXTURE2);
-	unsigned int specularTextureID;
-	glGenTextures(1, &specularTextureID);
-	glBindTexture(GL_TEXTURE_2D, specularTextureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SpecularTextureWidth, SpecularTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&SpecularTextureImageData[0]);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameterf(specularTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+	//std::string SpecularTextureFilename = "../Resources/";
+	//SpecularTextureFilename += TeapotTriMesh->M(0).map_Ks;
+	std::string SpecularTextureFilename = "../Resources/CubeMap/cubemap_posx.png";
+	TeapotStaticMesh->m_SpecularTextureID = Engine::ModelHandling::GetModelHandler()->CreateTexture2D(SpecularTextureFilename.c_str(), 2);
 
 
 	//Engine::Rendering::BuildAndUseProgram();
@@ -335,36 +287,18 @@ int main(void)
 	const_cast<Engine::Entity::GameObject*>(CubeMapStaticMesh->GetGameObject())->SetRotation(cyPoint3f(0.f, 0.f, 0.f));
 
 	//CubeMap Texture
-	glActiveTexture(GL_TEXTURE4);
-	unsigned int cubeMapTextureID;
-	glGenTextures(1, &cubeMapTextureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTextureID);
-
-	std::string CubeMapTextureFaces[6] = { "../Resources/CubeMap/cubemap_posx.png", "../Resources/CubeMap/cubemap_negx.png",
+	const unsigned int numCubeMapTextureFaces = 6; 
+	/*std::string CubeMapTextureFaces[numCubeMapTextureFaces] = { "../Resources/CubeMap/cubemap_posx.png", "../Resources/CubeMap/cubemap_negx.png",
 											"../Resources/CubeMap/cubemap_posy.png", "../Resources/CubeMap/cubemap_negy.png",
 											"../Resources/CubeMap/cubemap_posz.png", "../Resources/CubeMap/cubemap_negz.png" 
-										};
+										};*/
 
-	unsigned int numCubeMapTextureFaces = sizeof(CubeMapTextureFaces) / sizeof(CubeMapTextureFaces[0]);
-	
-	std::vector<unsigned char> CubeMapTextureFaceData;
-	unsigned int CubeMapFaceWidth;
-	unsigned int CubeMapFaceHeight;
-	
-	for (unsigned int i = 0; i < numCubeMapTextureFaces; i++)
-	{
-		Engine::Rendering::DecodeTexturePNG(CubeMapTextureFaces[i], CubeMapTextureFaceData, CubeMapFaceWidth, CubeMapFaceHeight);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, CubeMapFaceWidth, CubeMapFaceHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&CubeMapTextureFaceData[0]);
-	}
-	
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-	glTexParameterf(specularTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+	std::string CubeMapTextureFaces[numCubeMapTextureFaces] = { "../Resources/brick.png", "../Resources/brick.png",
+											"../Resources/brick.png", "../Resources/brick.png",
+											"../Resources/brick.png", "../Resources/brick.png"
+	};
 
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	CubeMapStaticMesh->m_DiffuseTextureID = Engine::ModelHandling::GetModelHandler()->CreateTextureCubeMap(CubeMapTextureFaces, numCubeMapTextureFaces, 4);
 
 
 
@@ -388,9 +322,11 @@ int main(void)
 		cyPoint3f NewPos(-MainSceneCamera->GetGameObject()->GetPosition().x, -MainSceneCamera->GetGameObject()->GetPosition().y, -MainSceneCamera->GetGameObject()->GetPosition().z);
 		CubeMapStaticMesh->GetGameObject()->SetPosition(NewPos);
 		//CubeMapStaticMesh->GetGameObject()->SetPosition(MainSceneCamera->GetGameObject()->GetPosition());
-		std::cout << "\nCamera: " << MainSceneCamera->GetGameObject()->GetPosition().x << " " << MainSceneCamera->GetGameObject()->GetPosition().y << " " << MainSceneCamera->GetGameObject()->GetPosition().z;
-		std::cout << "\nCubeMap: " << CubeMapStaticMesh->GetGameObject()->GetPosition().x << " " << CubeMapStaticMesh->GetGameObject()->GetPosition().y << " " << CubeMapStaticMesh->GetGameObject()->GetPosition().z;
+		//std::cout << "\nCamera: " << MainSceneCamera->GetGameObject()->GetPosition().x << " " << MainSceneCamera->GetGameObject()->GetPosition().y << " " << MainSceneCamera->GetGameObject()->GetPosition().z;
+		//std::cout << "\nCubeMap: " << CubeMapStaticMesh->GetGameObject()->GetPosition().x << " " << CubeMapStaticMesh->GetGameObject()->GetPosition().y << " " << CubeMapStaticMesh->GetGameObject()->GetPosition().z;
 		CubeMapTextureProgram->Bind();
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMapStaticMesh->m_DiffuseTextureID);
 		CubeMapTextureProgram->SetUniform("u_CubeMapSampler", GL_TEXTURE4);
 		CubeMapTextureProgram->SetUniformMatrix4("u_Projection", MainSceneCamera->GetPerspectiveProjection().data);
 		CubeMapTextureProgram->SetUniformMatrix4("u_Camera", MainSceneCamera->GetGameObject()->GetTransform().data);
@@ -410,6 +346,7 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		*/
 		
+		
 		//Render the scene to our RenderTexture
 		MainSceneProgram->Bind();
 
@@ -424,14 +361,14 @@ int main(void)
 		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);
 
 		//Set TextureSampler uniforms
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, ambientTextureID);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, TeapotStaticMesh->m_AmbientTextureID);
 		MainSceneProgram->SetUniform("u_AmbientTextureSampler", GL_TEXTURE0);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, TeapotStaticMesh->m_DiffuseTextureID);
 		MainSceneProgram->SetUniform("u_DiffuseTextureSampler", GL_TEXTURE1);
-		//glActiveTexture(GL_TEXTURE2);
-		//glBindTexture(GL_TEXTURE_2D, specularTextureID);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, TeapotStaticMesh->m_SpecularTextureID);
 		MainSceneProgram->SetUniform("u_SpecularTextureSampler", GL_TEXTURE2);
 
 		//Drawing code
