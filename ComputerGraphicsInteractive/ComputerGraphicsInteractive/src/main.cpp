@@ -204,21 +204,21 @@ int main(void)
 
 	//Teapot Texture Loading and Setup
 	//Ambient Texture
-	//std::string AmbientTextureFilename = "../Resources/";
-	//AmbientTextureFilename += TeapotTriMesh->M(0).map_Ka;
-	std::string AmbientTextureFilename = "../Resources/CubeMap/cubemap_posx.png";
+	std::string AmbientTextureFilename = "../Resources/";
+	AmbientTextureFilename += TeapotTriMesh->M(0).map_Ka;
+	//std::string AmbientTextureFilename = "../Resources/CubeMap/cubemap_posx.png";
 	TeapotStaticMesh->m_AmbientTextureID = Engine::ModelHandling::GetModelHandler()->CreateTexture2D(AmbientTextureFilename.c_str(), 0);
 
 	//Diffuse Texture
-	//std::string DiffuseTextureFilename = "../Resources/";
-	//DiffuseTextureFilename += TeapotTriMesh->M(0).map_Kd;
-	std::string DiffuseTextureFilename = "../Resources/CubeMap/cubemap_posx.png";
+	std::string DiffuseTextureFilename = "../Resources/";
+	DiffuseTextureFilename += TeapotTriMesh->M(0).map_Kd;
+	//std::string DiffuseTextureFilename = "../Resources/CubeMap/cubemap_posx.png";
 	TeapotStaticMesh->m_DiffuseTextureID = Engine::ModelHandling::GetModelHandler()->CreateTexture2D(DiffuseTextureFilename.c_str(), 1);
 
 	//Specular Texture
-	//std::string SpecularTextureFilename = "../Resources/";
-	//SpecularTextureFilename += TeapotTriMesh->M(0).map_Ks;
-	std::string SpecularTextureFilename = "../Resources/CubeMap/cubemap_posx.png";
+	std::string SpecularTextureFilename = "../Resources/";
+	SpecularTextureFilename += TeapotTriMesh->M(0).map_Ks;
+	//std::string SpecularTextureFilename = "../Resources/CubeMap/cubemap_posx.png";
 	TeapotStaticMesh->m_SpecularTextureID = Engine::ModelHandling::GetModelHandler()->CreateTexture2D(SpecularTextureFilename.c_str(), 2);
 
 
@@ -256,12 +256,17 @@ int main(void)
 	assert(bRenderTextureReady);
 
 	//Set texture settings for texture that will be used by Plane
-	SceneRenderTexture->BindTexture(3);
-	//glActiveTexture(GL_TEXTURE3);
+	//SceneRenderTexture->BindTexture(3);
+	glActiveTexture(GL_TEXTURE3);
 	//SceneRenderTexture->BindTexture();
-	SceneRenderTexture->SetTextureFilteringMode(GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-	SceneRenderTexture->BuildTextureMipmaps();
+	glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameterf(SceneRenderTexture->GetTextureID(), GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+	/*SceneRenderTexture->SetTextureFilteringMode(GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+	SceneRenderTexture->BuildTextureMipmaps();
+	glTexParameterf(SceneRenderTexture->GetTextureID(), GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());*/
 
 	//CubeMap
 	unsigned int cubeMapVertexArrayID;
@@ -310,7 +315,7 @@ int main(void)
 		 dt = Engine::Timing::GetLastFrameTime_ms();
 
 		/* Render here */
-		 //glClearColor(0.f, 0.f, 0.f, 1.f);
+		 glClearColor(0.f, 0.f, 0.f, 1.f);
 		 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//TODO handle order of code if Rendering Update does all the rendering
@@ -318,7 +323,7 @@ int main(void)
 		Engine::Rendering::Update(window, dt);
 
 		//Render CubeMap
-		glDisable(GL_DEPTH_TEST);
+		/*glDisable(GL_DEPTH_TEST);
 		cyPoint3f NewPos(-MainSceneCamera->GetGameObject()->GetPosition().x, -MainSceneCamera->GetGameObject()->GetPosition().y, -MainSceneCamera->GetGameObject()->GetPosition().z);
 		CubeMapStaticMesh->GetGameObject()->SetPosition(NewPos);
 		//CubeMapStaticMesh->GetGameObject()->SetPosition(MainSceneCamera->GetGameObject()->GetPosition());
@@ -334,17 +339,19 @@ int main(void)
 
 		glBindVertexArray(CubeMapStaticMesh->GetVertexArrayID());
 		glDrawArrays(GL_TRIANGLES, 0, CubeTriMesh->NF() * sizeof(CubeTriMesh->F(0).v) / sizeof(CubeTriMesh->F(0).v[0]));
-		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);*/
 		
-		/*
+		
 		//Bind our own RenderTexture
 		//glActiveTexture(GL_TEXTURE3);
 		SceneRenderTexture->Bind();
 		
-		SceneRenderTexture->BindTexture(3);
+		//SceneRenderTexture->BindTexture(3);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
 		glClearColor(0.f, 0.f, 1.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		*/
+		
 		
 		
 		//Render the scene to our RenderTexture
@@ -381,27 +388,31 @@ int main(void)
 
 		
 		//Unbind our RenderTexture so normal rendering buffers are brought back
-		//SceneRenderTexture->Unbind();
+		SceneRenderTexture->Unbind();
 		
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		RenderTextureProgram->Bind();
+		bool ProgramBuilt = !RenderTextureProgram->IsNull();
+		assert(ProgramBuilt);
 
 		RenderTextureProgram->SetUniformMatrix4("u_PlaneProjection", MainSceneCamera->GetPerspectiveProjection().data);
 		RenderTextureProgram->SetUniformMatrix4("u_PlaneCamera", MainSceneCamera->GetGameObject()->GetTransform().data);
 		RenderTextureProgram->SetUniformMatrix4("u_PlaneObject", PlaneStaticMesh->GetGameObject()->GetTransform().data);
 
 		//Bind the texture that the teapot scene was rendered to as the texture for the plane
-		/*SceneRenderTexture->BindTexture(3);
-		SceneRenderTexture->BuildTextureMipmaps();
 		//SceneRenderTexture->BindTexture(3);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
+		glGenerateMipmap(GL_TEXTURE_2D);
+		//SceneRenderTexture->BuildTextureMipmaps();
 		RenderTextureProgram->SetUniform("u_RenderToSampler", GL_TEXTURE3);
-		*/
+		
 
 		//Draw plane on usual rendering buffers
 		
 		
 		//Render the plane
-		MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
+		//MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
 		glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
 		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
 		
