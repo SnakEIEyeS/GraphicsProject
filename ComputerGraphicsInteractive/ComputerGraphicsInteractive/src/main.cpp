@@ -12,6 +12,7 @@
 #include "Timer/FrameTime.h"
 #include "Input/Input.h"
 #include "LightSource/PointLight.h"
+#include "LightSource/SpotLight.h"
 #include "ModelHandler/ModelHandler.h"
 #include "Rendering/Rendering.h"
 #include "StaticMesh/StaticMesh.h"
@@ -306,6 +307,10 @@ int main(void)
 	CubeMapStaticMesh->m_DiffuseTextureID = Engine::ModelHandling::GetModelHandler()->CreateTextureCubeMap(CubeMapTextureFaces, numCubeMapTextureFaces, 4);
 
 
+	Engine::Rendering::GetRenderSpotLight().GetGameObject()->SetRotation(
+		cyPoint3f(0.f, 0.f, 0.f) - Engine::Rendering::GetRenderSpotLight().GetGameObject()->GetPosition()
+	);
+	Engine::Input::SetShiftBoundGameObject(Engine::Rendering::GetRenderSpotLight().GetGameObject());
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -344,13 +349,13 @@ int main(void)
 		
 		//Bind our own RenderTexture
 		//glActiveTexture(GL_TEXTURE3);
-		SceneRenderTexture->Bind();
+		/*SceneRenderTexture->Bind();*/
 		
 		//SceneRenderTexture->BindTexture(3);
-		glActiveTexture(GL_TEXTURE3);
+		/*glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
 		glClearColor(0.f, 0.f, 1.f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
 		
 		
 		
@@ -362,7 +367,10 @@ int main(void)
 
 		//TODO make PointLight have a GameObject
 		const cyPoint3f PointLightPos3 = Engine::Rendering::GetRenderPointLight().GetPosition().GetNonHomogeneous();
-		MainSceneProgram->SetUniform("u_LightPosition", PointLightPos3);
+
+		const cyPoint3f SpotLightPos3 = Engine::Rendering::GetRenderSpotLight().GetGameObject()->GetPosition();
+		
+		MainSceneProgram->SetUniform("u_LightPosition", SpotLightPos3);
 		MainSceneProgram->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
 		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::MaterialSpecularExponent);
 		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);
@@ -388,31 +396,31 @@ int main(void)
 
 		
 		//Unbind our RenderTexture so normal rendering buffers are brought back
-		SceneRenderTexture->Unbind();
+		/*SceneRenderTexture->Unbind();*/
 		
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		RenderTextureProgram->Bind();
+		/*RenderTextureProgram->Bind();
 		bool ProgramBuilt = !RenderTextureProgram->IsNull();
 		assert(ProgramBuilt);
 
 		RenderTextureProgram->SetUniformMatrix4("u_PlaneProjection", MainSceneCamera->GetPerspectiveProjection().data);
 		RenderTextureProgram->SetUniformMatrix4("u_PlaneCamera", MainSceneCamera->GetGameObject()->GetTransform().data);
-		RenderTextureProgram->SetUniformMatrix4("u_PlaneObject", PlaneStaticMesh->GetGameObject()->GetTransform().data);
+		RenderTextureProgram->SetUniformMatrix4("u_PlaneObject", PlaneStaticMesh->GetGameObject()->GetTransform().data);*/
 
 		//Bind the texture that the teapot scene was rendered to as the texture for the plane
 		//SceneRenderTexture->BindTexture(3);
-		glActiveTexture(GL_TEXTURE3);
+		/*glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
 		glGenerateMipmap(GL_TEXTURE_2D);
 		//SceneRenderTexture->BuildTextureMipmaps();
-		RenderTextureProgram->SetUniform("u_RenderToSampler", GL_TEXTURE3);
+		RenderTextureProgram->SetUniform("u_RenderToSampler", GL_TEXTURE3);*/
 		
 
 		//Draw plane on usual rendering buffers
 		
 		
 		//Render the plane
-		//MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
+		MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
 		glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
 		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
 		

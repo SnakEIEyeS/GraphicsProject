@@ -10,8 +10,10 @@
 #include "../cyCodeBase/cyPoint.h"
 #include "../cyCodeBase/cyTriMesh.h"
 #include "../FileHandling/lodepng.h"
+#include "../GameObject/GameObject.h"
 #include "../Math/MathUtility.h"
 #include "../LightSource/PointLight.h"
+#include "../LightSource/SpotLight.h"
 #include "Renderer.h"
 
 namespace Engine
@@ -26,6 +28,8 @@ namespace Engine
 		static Color ClearColor(0.f, 0.f, 0.f, 1.f);
 
 		static const cyPoint4f PointLightCreatePosition(cyPoint4f(0.f, -10.f, 40.f, 1.f));
+		static const cyPoint3f SpotLightCreatePosition(cyPoint3f(0.f, -10.f, 40.f));
+
 
 		bool Startup()
 		{
@@ -146,6 +150,16 @@ namespace Engine
 			}
 
 			return *RenderPointLight;
+		}
+
+		Engine::Lighting::SpotLight & GetRenderSpotLight()
+		{
+			if (!RenderSpotLight)
+			{
+				RenderSpotLight = new Engine::Lighting::SpotLight(new Engine::Entity::GameObject(SpotLightCreatePosition));
+			}
+
+			return *RenderSpotLight;
 		}
 
 		void SetMaterialDetails(cy::TriMesh * i_pTriMeshObj, int i_MaterialIndex)

@@ -142,6 +142,7 @@
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Input\Input.cpp" />
     <ClCompile Include="src\LightSource\PointLight.cpp" />
+    <ClCompile Include="src\LightSource\SpotLight.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Math\MathUtility.cpp" />
     <ClCompile Include="src\ModelHandler\ModelHandler.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="src\GameObject\GameObject.h" />
     <ClInclude Include="src\Input\Input.h" />
     <ClInclude Include="src\LightSource\PointLight.h" />
+    <ClInclude Include="src\LightSource\SpotLight.h" />
     <ClInclude Include="src\Math\MathUtility.h" />
     <ClInclude Include="src\Math\Vector3.h" />
     <ClInclude Include="src\Math\Vector4.h" />

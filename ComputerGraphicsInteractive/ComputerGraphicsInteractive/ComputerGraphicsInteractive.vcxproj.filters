@@ -66,6 +66,9 @@
     <ClCompile Include="src\StaticMesh\StaticMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LightSource\SpotLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Input\Input.h">
@@ -162,6 +165,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\StaticMesh\StaticMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LightSource\SpotLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

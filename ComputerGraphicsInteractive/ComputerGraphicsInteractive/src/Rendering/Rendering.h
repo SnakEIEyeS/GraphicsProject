@@ -17,6 +17,7 @@ namespace Engine
 	namespace Lighting
 	{
 		class PointLight;
+		class SpotLight;
 	}
 
 	namespace Rendering
@@ -59,6 +60,9 @@ namespace Engine
 		//TODO make PointLight have a GameObject
 		static Engine::Lighting::PointLight* RenderPointLight = nullptr;
 		Engine::Lighting::PointLight& GetRenderPointLight();
+
+		static Engine::Lighting::SpotLight* RenderSpotLight = nullptr;
+		Engine::Lighting::SpotLight& GetRenderSpotLight();
 
 		static const float AmbientConstant = 0.1f;
 		static const float SpecularAlpha = 5.f;

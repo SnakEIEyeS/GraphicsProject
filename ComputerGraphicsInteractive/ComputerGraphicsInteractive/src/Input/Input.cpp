@@ -16,6 +16,7 @@ namespace Engine
 		Engine::Entity::GameObject* CameraGameObject = nullptr;
 		Engine::Entity::GameObject* CtrlBoundGameObject = nullptr;
 		Engine::Entity::GameObject* AltBoundGameObject = nullptr;
+		Engine::Entity::GameObject* ShiftBoundGameObject = nullptr;
 
 		bool Startup()
 		{
@@ -112,6 +113,14 @@ namespace Engine
 					AltBoundGameObject->SetRotation(AltBoundGameObject->GetRotation() + cyPoint3f(PitchAmount, YawAmount, 0.f));
 				}
 			}
+			else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+			{
+				//Rotate Shift bound object
+				if (ShiftBoundGameObject)
+				{
+					ShiftBoundGameObject->SetRotation(ShiftBoundGameObject->GetRotation() + cyPoint3f(PitchAmount, YawAmount, 0.f));
+				}
+			}
 			else
 			{
 				//Rotate Camera
@@ -152,6 +161,15 @@ namespace Engine
 					AltBoundGameObject->SetPosition(AltBoundGameObject->GetPosition() + cyPoint3f(TranslateX, -TranslateY, 0.f));
 				}
 			}
+			else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+			{
+				//Translate Shift bound object
+				if (ShiftBoundGameObject)
+				{
+					//Negate Y translation because TopLeft of window is (0,0) and BottomRight is (Width, Height)
+					ShiftBoundGameObject->SetPosition(ShiftBoundGameObject->GetPosition() + cyPoint3f(TranslateX, -TranslateY, 0.f));
+				}
+			}
 			else
 			{
 				//Camera zoom
@@ -186,6 +204,12 @@ namespace Engine
 		{
 			assert(i_pGameObject);
 			AltBoundGameObject = i_pGameObject;
+		}
+
+		void SetShiftBoundGameObject(Engine::Entity::GameObject * i_pGameObject)
+		{
+			assert(i_pGameObject);
+			ShiftBoundGameObject = i_pGameObject;
 		}
 
 	}
