@@ -32,7 +32,7 @@ namespace Engine
 			//returns TextureID
 			unsigned int CreateTexture2D(const char* i_TextureFileName, const unsigned int & i_TextureUnitIndex);
 			//returns TextureID
-			unsigned int CreateTextureCubeMap(std::string* i_ArrTextureFaceFileNames, const unsigned int & i_NumTextureFaces, const unsigned int & i_TextureUnitIndex);
+			unsigned int CreateTextureCubeMap(std::string i_ArrTextureFaceFileNames[], const unsigned int & i_NumTextureFaces, const unsigned int & i_TextureUnitIndex);
 
 		private:
 

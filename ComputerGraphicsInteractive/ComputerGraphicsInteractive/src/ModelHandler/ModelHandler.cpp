@@ -110,20 +110,60 @@ namespace Engine
 			Engine::Rendering::DecodeTexturePNG(i_TextureFileName, TextureImageData, TextureWidth, TextureHeight);
 
 			glActiveTexture(GL_TEXTURE0 + i_TextureUnitIndex);
+			GLuint err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
 			unsigned int CreatedTextureID;
 			glGenTextures(1, &CreatedTextureID);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
 			glBindTexture(GL_TEXTURE_2D, CreatedTextureID);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TextureWidth, TextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&TextureImageData[0]);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
 			glGenerateMipmap(GL_TEXTURE_2D);
-			glTexParameterf(CreatedTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
 			
 			return CreatedTextureID;
 		}
 
-		unsigned int ModelHandler::CreateTextureCubeMap(std::string* i_ArrTextureFaceFileNames, const unsigned int & i_NumTextureFaces, const unsigned int & i_TextureUnitIndex)
+		unsigned int ModelHandler::CreateTextureCubeMap(std::string i_ArrTextureFaceFileNames[], const unsigned int & i_NumTextureFaces, const unsigned int & i_TextureUnitIndex)
 		{
 			glActiveTexture(GL_TEXTURE0 + i_TextureUnitIndex);
 			unsigned int CreatedCubeMapTextureID;
@@ -144,7 +184,7 @@ namespace Engine
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-			glTexParameterf(CreatedCubeMapTextureID, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+			glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
 
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
