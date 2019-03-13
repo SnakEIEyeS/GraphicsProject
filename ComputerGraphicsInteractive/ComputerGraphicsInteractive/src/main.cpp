@@ -386,6 +386,7 @@ int main(void)
 		Engine::Input::Update(window, dt);
 		Engine::Rendering::Update(window, dt);
 
+		/*
 		//Render CubeMap
 		glDisable(GL_DEPTH_TEST);
 		err = glGetError();
@@ -424,6 +425,8 @@ int main(void)
 		{
 			printf("Error code: %d\n", err);
 		}
+
+		*/
 		
 		
 		//Bind our own RenderTexture
@@ -433,7 +436,7 @@ int main(void)
 		//SceneRenderTexture->BindTexture(3);
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
-		glClearColor(0.f, 0.f, 1.f, 1.f);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		
