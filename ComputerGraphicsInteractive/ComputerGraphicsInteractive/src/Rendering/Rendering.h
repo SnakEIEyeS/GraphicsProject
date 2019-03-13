@@ -17,6 +17,7 @@ namespace Engine
 	namespace Lighting
 	{
 		class PointLight;
+		class SpotLight;
 	}
 
 	namespace Rendering
@@ -28,6 +29,9 @@ namespace Engine
 
 		static const char* RenderTextureVertexShaderFile = "res/RenderToTextureVS.shader";
 		static const char* RenderTextureFragmentShaderFile = "res/RenderToTextureFS.shader";
+
+		static const char* CubeMapTextureVertexShaderFile = "res/CubeMapVS.shader";
+		static const char* CubeMapTextureFragmentShaderFile = "res/CubeMapFS.shader";
 		
 		struct Color
 		{
@@ -56,6 +60,9 @@ namespace Engine
 		//TODO make PointLight have a GameObject
 		static Engine::Lighting::PointLight* RenderPointLight = nullptr;
 		Engine::Lighting::PointLight& GetRenderPointLight();
+
+		static Engine::Lighting::SpotLight* RenderSpotLight = nullptr;
+		Engine::Lighting::SpotLight& GetRenderSpotLight();
 
 		static const float AmbientConstant = 0.1f;
 		static const float SpecularAlpha = 5.f;

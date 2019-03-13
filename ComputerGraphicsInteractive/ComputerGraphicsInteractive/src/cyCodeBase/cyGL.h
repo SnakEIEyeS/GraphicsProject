@@ -82,7 +82,7 @@
 #include <sstream>
 #include <assert.h>
 
-#include <GL/glfw3.h>
+//#include <GL/glfw3.h>
 #include <GL/GLU.h>
 
 //-------------------------------------------------------------------------------

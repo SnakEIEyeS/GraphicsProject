@@ -12,6 +12,14 @@ Engine::Entity::GameObject::~GameObject()
 {
 }
 
+Engine::Entity::GameObject::GameObject(cyPoint3f i_Position) : m_Position(i_Position), m_Rotation(cyPoint3f(0.f, 0.f, 0.f))
+{
+}
+
+Engine::Entity::GameObject::GameObject(cyPoint3f i_Position, cyPoint3f i_Rotation) : m_Position(i_Position), m_Rotation(i_Rotation)
+{
+}
+
 const cyPoint3f Engine::Entity::GameObject::GetPosition() const
 {
 	return m_Position;
