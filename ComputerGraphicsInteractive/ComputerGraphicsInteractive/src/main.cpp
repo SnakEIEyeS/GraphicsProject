@@ -131,6 +131,8 @@ int main(void)
 	Engine::Entity::StaticMesh* TeapotStaticMesh = new Engine::Entity::StaticMesh(new Engine::Entity::GameObject(), teapotVertexArrayID);
 	const_cast<Engine::Entity::GameObject*>(TeapotStaticMesh->GetGameObject())->SetPosition(cyPoint3f(0.f, 0.f, 0.f));
 	const_cast<Engine::Entity::GameObject*>(TeapotStaticMesh->GetGameObject())->SetRotation(cyPoint3f(0.f, 0.f, 0.f));
+	//Bind Teapot movement, rotation to Ctrl
+	Engine::Input::SetCtrlBoundGameObject(TeapotStaticMesh->GetGameObject());
 	
 
 	//Render Plane
