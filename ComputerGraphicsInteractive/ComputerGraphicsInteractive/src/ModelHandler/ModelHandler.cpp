@@ -170,14 +170,44 @@ namespace Engine
 			glGenTextures(1, &CreatedCubeMapTextureID);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, CreatedCubeMapTextureID);
 
-			std::vector<unsigned char> CubeMapTextureFaceData;
+			std::vector<unsigned char> CubeMapTextureFaceData[6];
 			unsigned int CubeMapFaceWidth;
 			unsigned int CubeMapFaceHeight;
 
 			for (unsigned int i = 0; i < i_NumTextureFaces; i++)
 			{
-				Engine::Rendering::DecodeTexturePNG(i_ArrTextureFaceFileNames[i], CubeMapTextureFaceData, CubeMapFaceWidth, CubeMapFaceHeight);
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, CubeMapFaceWidth, CubeMapFaceHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&CubeMapTextureFaceData[0]);
+				Engine::Rendering::DecodeTexturePNG(i_ArrTextureFaceFileNames[i], CubeMapTextureFaceData[i], CubeMapFaceWidth, CubeMapFaceHeight);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, CubeMapFaceWidth, CubeMapFaceHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&CubeMapTextureFaceData[i][0]);
+				//std::cout << CubeMapFaceWidth << " " << CubeMapFaceHeight << "\n";
+			}
+
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+			glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+			return CreatedCubeMapTextureID;
+		}
+
+		unsigned int ModelHandler::CreateTextureCubeMap(std::vector<std::string> i_ArrTextureFaceFileNames, const unsigned int & i_NumTextureFaces, const unsigned int & i_TextureUnitIndex)
+		{
+			glActiveTexture(GL_TEXTURE0 + i_TextureUnitIndex);
+			unsigned int CreatedCubeMapTextureID;
+			glGenTextures(1, &CreatedCubeMapTextureID);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, CreatedCubeMapTextureID);
+
+			std::vector<unsigned char> CubeMapTextureFaceData[6];
+			unsigned int CubeMapFaceWidth;
+			unsigned int CubeMapFaceHeight;
+
+			for (unsigned int i = 0; i < i_NumTextureFaces; i++)
+			{
+				Engine::Rendering::DecodeTexturePNG(i_ArrTextureFaceFileNames[i], CubeMapTextureFaceData[i], CubeMapFaceWidth, CubeMapFaceHeight);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, CubeMapFaceWidth, CubeMapFaceHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)&CubeMapTextureFaceData[i][0]);
 				//std::cout << CubeMapFaceWidth << " " << CubeMapFaceHeight << "\n";
 			}
 

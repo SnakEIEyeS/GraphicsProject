@@ -358,7 +358,7 @@ int main(void)
 											"../Resources/CubeMap/cubemap_posy.png", "../Resources/CubeMap/cubemap_negy.png",
 											"../Resources/CubeMap/cubemap_posz.png", "../Resources/CubeMap/cubemap_negz.png" 
 										};
-
+	
 	CubeMapStaticMesh->m_DiffuseTextureID = Engine::ModelHandling::GetModelHandler()->CreateTextureCubeMap(CubeMapTextureFaces, numCubeMapTextureFaces, 4);
 
 
@@ -388,7 +388,7 @@ int main(void)
 		Engine::Input::Update(window, dt);
 		Engine::Rendering::Update(window, dt);
 
-		/*
+		
 		//Render CubeMap
 		glDisable(GL_DEPTH_TEST);
 		err = glGetError();
@@ -428,7 +428,7 @@ int main(void)
 			printf("Error code: %d\n", err);
 		}
 
-		*/
+		
 		
 		
 		//Bind our own RenderTexture
