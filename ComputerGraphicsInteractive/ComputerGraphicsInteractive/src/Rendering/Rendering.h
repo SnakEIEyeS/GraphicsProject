@@ -24,8 +24,8 @@ namespace Engine
 	{
 		static cyGLSLProgram* cyGraphicsProgram = nullptr;
 
-		static const char* SceneVertexShaderFile = "res/TexturesVS.shader";
-		static const char* SceneFragmentShaderFile = "res/TexturesFS.shader";
+		static const char* SceneVertexShaderFile = "res/EnvironmentMappingVS.shader";
+		static const char* SceneFragmentShaderFile = "res/EnvironmentMappingFS.shader";
 
 		static const char* RenderTextureVertexShaderFile = "res/RenderToTextureVS.shader";
 		static const char* RenderTextureFragmentShaderFile = "res/RenderToTextureFS.shader";

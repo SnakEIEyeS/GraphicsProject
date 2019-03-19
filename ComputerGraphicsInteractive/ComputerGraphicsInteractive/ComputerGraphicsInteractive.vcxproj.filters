@@ -185,5 +185,7 @@
     <None Include="res\RenderToTextureFS.shader" />
     <None Include="res\CubeMapVS.shader" />
     <None Include="res\CubeMapFS.shader" />
+    <None Include="res\EnvironmentMappingVS.shader" />
+    <None Include="res\EnvironmentMappingFS.shader" />
   </ItemGroup>
 </Project>

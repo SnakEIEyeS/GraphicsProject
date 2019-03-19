@@ -433,13 +433,13 @@ int main(void)
 		
 		//Bind our own RenderTexture
 		//glActiveTexture(GL_TEXTURE3);
-		SceneRenderTexture->Bind();
+		/*SceneRenderTexture->Bind();
 
 		//SceneRenderTexture->BindTexture(3);
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
 		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
 		
 		
 		
@@ -465,9 +465,13 @@ int main(void)
 		const cyPoint3f SpotLightPos3 = Engine::Rendering::GetRenderSpotLight().GetGameObject()->GetPosition();
 		
 		MainSceneProgram->SetUniform("u_LightPosition", SpotLightPos3);
-		MainSceneProgram->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
+		MainSceneProgram->SetUniform("u_CameraPosition", MainSceneCamera->GetGameObject()->GetPosition());
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMapStaticMesh->m_DiffuseTextureID);
+		MainSceneProgram->SetUniform("u_CubeMapSampler", 4);
+		/*MainSceneProgram->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
 		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::MaterialSpecularExponent);
-		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);
+		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);*/
 		err = glGetError();
 		if (err != 0)
 		{
@@ -475,14 +479,14 @@ int main(void)
 		}
 
 		//Set TextureSampler uniforms
-		glActiveTexture(GL_TEXTURE0);
+		/*glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, TeapotStaticMesh->m_AmbientTextureID);
 		//MainSceneProgram->SetUniform("u_AmbientTextureSampler", GL_TEXTURE0);
 		MainSceneProgram->SetUniform("u_AmbientTextureSampler", 0);
 		//glUniform1i(glGetUniformLocation(MainSceneProgram->GetID(), "u_AmbientTextureSampler"), 0)
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, TeapotStaticMesh->m_DiffuseTextureID);
-		MainSceneProgram->SetUniform("u_DiffuseTextureSampler", 1);
+		MainSceneProgram->SetUniform("u_DiffuseTextureSampler", 1);*/
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, TeapotStaticMesh->m_SpecularTextureID);
 		MainSceneProgram->SetUniform("u_SpecularTextureSampler", 2);
@@ -502,7 +506,7 @@ int main(void)
 
 		
 		//Unbind our RenderTexture so normal rendering buffers are brought back
-		SceneRenderTexture->Unbind();
+		/*SceneRenderTexture->Unbind();
 		err = glGetError();
 		if (err != 0)
 		{
@@ -539,21 +543,21 @@ int main(void)
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
-		}
+		}*/
 		
 
 		//Draw plane on usual rendering buffers
 		
 		
 		//Render the plane
-		//MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
+		/*MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
 		glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
 		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
 		err = glGetError();
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
-		}
+		}*/
 		
 
 		//Drawing code end

@@ -191,6 +191,8 @@
     <None Include="res\BasicVS.shader" />
     <None Include="res\CubeMapFS.shader" />
     <None Include="res\CubeMapVS.shader" />
+    <None Include="res\EnvironmentMappingFS.shader" />
+    <None Include="res\EnvironmentMappingVS.shader" />
     <None Include="res\LightsShadingFS.shader" />
     <None Include="res\LightsShadingVS.shader" />
     <None Include="res\RenderToTextureFS.shader" />
