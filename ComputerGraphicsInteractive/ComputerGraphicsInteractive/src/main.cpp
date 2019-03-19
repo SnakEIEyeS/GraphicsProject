@@ -251,6 +251,7 @@ int main(void)
 	cyGLSLProgram* MainSceneProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::SceneFragmentShaderFile);
 	cyGLSLProgram* RenderTextureProgram = Engine::Rendering::BuildProgram(Engine::Rendering::RenderTextureVertexShaderFile, Engine::Rendering::RenderTextureFragmentShaderFile);
 	cyGLSLProgram* CubeMapTextureProgram = Engine::Rendering::BuildProgram(Engine::Rendering::CubeMapTextureVertexShaderFile, Engine::Rendering::CubeMapTextureFragmentShaderFile);
+	cyGLSLProgram* DebugDrawProgram = Engine::Rendering::BuildProgram(Engine::Rendering::DebugDrawVertexShaderFile, Engine::Rendering::DebugDrawFragmentShaderFile, Engine::Rendering::DebugDrawGeometryShaderFile);
 	err = glGetError();
 	if (err != 0)
 	{
@@ -550,15 +551,38 @@ int main(void)
 		
 		
 		//Render the plane
-		/*MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
+		MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
 		glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
 		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
 		err = glGetError();
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
-		}*/
-		
+		}
+
+		DebugDrawProgram->Bind();
+		err = glGetError();
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
+
+		DebugDrawProgram->SetUniformMatrix4("u_Projection", MainSceneCamera->GetPerspectiveProjection().data);
+		DebugDrawProgram->SetUniformMatrix4("u_Camera", MainSceneCamera->GetGameObject()->GetTransform().data);
+		err = glGetError();
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
+
+		DebugDrawProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
+		glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
+		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
+		err = glGetError();
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
 
 		//Drawing code end
 

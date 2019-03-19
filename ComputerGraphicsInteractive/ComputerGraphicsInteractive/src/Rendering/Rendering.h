@@ -32,6 +32,11 @@ namespace Engine
 
 		static const char* CubeMapTextureVertexShaderFile = "res/CubeMapVS.shader";
 		static const char* CubeMapTextureFragmentShaderFile = "res/CubeMapFS.shader";
+
+		static const char* DebugDrawVertexShaderFile = "res/DebugDrawVS.shader";
+		static const char* DebugDrawGeometryShaderFile = "res/DebugDrawGS.shader"; 
+		static const char* DebugDrawFragmentShaderFile = "res/DebugDrawFS.shader";
+		
 		
 		struct Color
 		{
@@ -54,6 +59,7 @@ namespace Engine
 
 		cyGLSLProgram* GetGLProgram();
 		cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
+		cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile, const char* i_GeometryShaderFile);
 		bool BuildAndUseProgram();
 		bool BuildAndUseProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
 

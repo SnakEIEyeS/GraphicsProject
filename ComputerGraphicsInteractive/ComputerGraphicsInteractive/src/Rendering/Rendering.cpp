@@ -109,7 +109,7 @@ namespace Engine
 			}
 		}
 
-		cyGLSLProgram * GetGLProgram()
+		cyGLSLProgram* GetGLProgram()
 		{
 			if (!cyGraphicsProgram)
 			{
@@ -118,10 +118,17 @@ namespace Engine
 			return cyGraphicsProgram;
 		}
 
-		cyGLSLProgram * BuildProgram(const char * i_VertexShaderFile, const char * i_FragmentShaderFile)
+		cyGLSLProgram* BuildProgram(const char * i_VertexShaderFile, const char * i_FragmentShaderFile)
 		{
 			cyGLSLProgram* ProgramToReturn = new cyGLSLProgram();
 			ProgramToReturn->BuildFiles(i_VertexShaderFile, i_FragmentShaderFile, nullptr, nullptr, nullptr);
+			return ProgramToReturn;
+		}
+
+		cyGLSLProgram* BuildProgram(const char * i_VertexShaderFile, const char * i_FragmentShaderFile, const char * i_GeometryShaderFile)
+		{
+			cyGLSLProgram* ProgramToReturn = new cyGLSLProgram();
+			ProgramToReturn->BuildFiles(i_VertexShaderFile, i_FragmentShaderFile, i_GeometryShaderFile, nullptr, nullptr);
 			return ProgramToReturn;
 		}
 
