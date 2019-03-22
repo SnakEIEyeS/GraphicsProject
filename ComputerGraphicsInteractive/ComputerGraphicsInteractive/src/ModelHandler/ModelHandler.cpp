@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #include <GL/glfw3.h>
 
+#include "../cyCodeBase/cyPoint.h"
 #include "../cyCodeBase/cyTriMesh.h"
 #include "../Rendering/Rendering.h"
 
@@ -101,6 +102,87 @@ namespace Engine
 
 			return vertexTextureBufferID;
 		}
+
+		void ModelHandler::CalculatePlaneTangentsBitangents(std::vector<cyPoint3f> i_PlaneVertexPositions, std::vector<cyPoint3f> i_PlaneUVs, unsigned int i_VertexArrayID, 
+			unsigned int & o_VertexTangentArrayID, unsigned int & o_VertexBitangentArrayID)
+		{
+
+			const unsigned int NumPlaneVertices = 6;
+
+			assert(i_PlaneVertexPositions.size() == NumPlaneVertices);
+			assert(i_PlaneUVs.size() == NumPlaneVertices);
+
+			std::vector<cyPoint3f> APlaneTangents;
+			std::vector<cyPoint3f> APlaneBitangents;
+
+			unsigned int TriFirstVertex = 0;
+
+			for (int i = 0; i < 2; i++)
+			{
+				cyPoint3f Edge1 = i_PlaneVertexPositions[TriFirstVertex + 1] - i_PlaneVertexPositions[TriFirstVertex];
+				cyPoint3f Edge2 = i_PlaneVertexPositions[TriFirstVertex + 2] - i_PlaneVertexPositions[TriFirstVertex];
+
+				cyPoint3f DeltaUV1 = i_PlaneUVs[TriFirstVertex + 1] - i_PlaneUVs[TriFirstVertex];
+				cyPoint3f DeltaUV2 = i_PlaneUVs[TriFirstVertex + 2] - i_PlaneUVs[TriFirstVertex];
+
+				float f = 1.f / (DeltaUV1.x * DeltaUV2.y - DeltaUV2.x * DeltaUV1.y);
+				cyPoint3f Tangent;
+				Tangent.x = f * (DeltaUV2.y * Edge1.x - DeltaUV1.y * Edge2.x);
+				Tangent.y = f * (DeltaUV2.y * Edge1.y - DeltaUV1.y * Edge2.y);
+				Tangent.z = f * (DeltaUV2.y * Edge1.z - DeltaUV1.y * Edge2.z);
+				Tangent.Normalize();
+
+				cyPoint3f Bitangent;
+				Bitangent.x = f * (-DeltaUV2.x * Edge1.x + DeltaUV1.x * Edge2.x);
+				Bitangent.y = f * (-DeltaUV2.x * Edge1.y + DeltaUV1.x * Edge2.y);
+				Bitangent.z = f * (-DeltaUV2.x * Edge1.z + DeltaUV1.x * Edge2.z);
+				Bitangent.Normalize();
+
+				APlaneTangents.push_back(Tangent);
+				APlaneTangents.push_back(Tangent);
+				APlaneTangents.push_back(Tangent);
+
+				APlaneBitangents.push_back(Bitangent);
+				APlaneBitangents.push_back(Bitangent);
+				APlaneBitangents.push_back(Bitangent);
+
+				TriFirstVertex += 3;
+			}
+
+			assert(APlaneTangents.size() == NumPlaneVertices);
+			assert(APlaneBitangents.size() == NumPlaneVertices);
+
+			glBindVertexArray(i_VertexArrayID);
+
+			//Add Vertex Tangent Coordinates through OpenGL
+			unsigned int vertexTangentBufferID;
+			glGenBuffers(1, &vertexTangentBufferID);
+			glBindBuffer(GL_ARRAY_BUFFER, vertexTangentBufferID);
+
+			glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneTangents[0]) * NumPlaneVertices, const_cast<void*>(reinterpret_cast<void*>(&APlaneTangents[0])), GL_STATIC_DRAW);
+
+			glEnableVertexAttribArray(VertexInfo::VertexTangent);
+			glVertexAttribPointer(VertexInfo::VertexTangent, sizeof(APlaneTangents[0]) / sizeof(APlaneTangents[0].x), GL_FLOAT, GL_FALSE, sizeof(APlaneTangents[0]), (const void*)0);
+
+			o_VertexTangentArrayID = vertexTangentBufferID;
+
+
+			glBindVertexArray(i_VertexArrayID);
+
+			//Add Vertex Bitangent Coordinates through OpenGL
+			unsigned int vertexBitangentBufferID;
+			glGenBuffers(1, &vertexBitangentBufferID);
+			glBindBuffer(GL_ARRAY_BUFFER, vertexBitangentBufferID);
+
+			glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneBitangents[0]) * NumPlaneVertices, const_cast<void*>(reinterpret_cast<void*>(&APlaneBitangents[0])), GL_STATIC_DRAW);
+
+			glEnableVertexAttribArray(VertexInfo::VertexBitangent);
+			glVertexAttribPointer(VertexInfo::VertexBitangent, sizeof(APlaneBitangents[0]) / sizeof(APlaneBitangents[0].x), GL_FLOAT, GL_FALSE, sizeof(APlaneBitangents[0]), (const void*)0);
+
+			o_VertexBitangentArrayID = vertexBitangentBufferID;
+			
+		}
+
 
 		unsigned int ModelHandler::CreateTexture2D(const char* i_TextureFileName, const unsigned int &  i_TextureUnitIndex)
 		{
@@ -235,3 +317,12 @@ namespace Engine
 		}
 	}
 }
+
+
+
+/*
+*** References ***
+
+https://learnopengl.com/Advanced-Lighting/Normal-Mapping for Tangent & Bitangent calculation
+
+*/

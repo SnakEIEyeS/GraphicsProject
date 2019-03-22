@@ -147,7 +147,7 @@ int main(void)
 
 	//const float PlaneXExtent = 25.f;
 	//const float PlaneYExtent = 15.f;
-	const float PlaneXExtent = 40.f;
+	const float PlaneXExtent = 30.f;
 	const float PlaneYExtent = 30.f;
 	cyPoint3f PlaneTopLeft(-PlaneXExtent, PlaneYExtent, 0.f);
 	cyPoint3f PlaneTopRight(PlaneXExtent, PlaneYExtent, 0.f);
@@ -204,6 +204,10 @@ int main(void)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertTextures[0])*APlaneVertTextures.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertTextures[0])), GL_STATIC_DRAW);
 	glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexTexture);
 	glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexTexture, sizeof(APlaneVertTextures[0]) / sizeof(APlaneVertTextures[0].x), GL_FLOAT, GL_FALSE, sizeof(APlaneVertTextures[0]), (const void*)0);
+
+	unsigned int PlaneTangentsBufferID;
+	unsigned int PlaneBitangentsBufferID;
+	Engine::ModelHandling::GetModelHandler()->CalculatePlaneTangentsBitangents(APlaneVertPos, APlaneVertTextures, planeVertexArrayID, PlaneTangentsBufferID, PlaneBitangentsBufferID);
 
 	Engine::Entity::StaticMesh* PlaneStaticMesh = new Engine::Entity::StaticMesh(new Engine::Entity::GameObject(), planeVertexArrayID);
 	const_cast<Engine::Entity::GameObject*>(PlaneStaticMesh->GetGameObject())->SetPosition(cyPoint3f(0.f, 0.f, 0.f));
