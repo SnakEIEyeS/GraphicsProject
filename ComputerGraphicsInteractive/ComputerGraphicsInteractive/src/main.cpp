@@ -250,6 +250,10 @@ int main(void)
 		printf("Error code: %d\n", err);
 	}
 
+	//Normal Map for Plane
+	std::string PlaneNormalMapFilename = "../Resources/teapot_normal.png";
+	PlaneStaticMesh->m_NormalMapID = Engine::ModelHandling::GetModelHandler()->CreateTexture2D(PlaneNormalMapFilename.c_str(), 5);
+
 
 	//Engine::Rendering::BuildAndUseProgram();
 	cyGLSLProgram* MainSceneProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::SceneFragmentShaderFile);
@@ -475,8 +479,8 @@ int main(void)
 		glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMapStaticMesh->m_DiffuseTextureID);
 		MainSceneProgram->SetUniform("u_CubeMapSampler", 4);
 		/*MainSceneProgram->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
-		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::MaterialSpecularExponent);
-		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);*/
+		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::MaterialSpecularExponent);*/
+		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);
 		err = glGetError();
 		if (err != 0)
 		{
@@ -488,16 +492,18 @@ int main(void)
 		glBindTexture(GL_TEXTURE_2D, TeapotStaticMesh->m_AmbientTextureID);
 		//MainSceneProgram->SetUniform("u_AmbientTextureSampler", GL_TEXTURE0);
 		MainSceneProgram->SetUniform("u_AmbientTextureSampler", 0);
-		//glUniform1i(glGetUniformLocation(MainSceneProgram->GetID(), "u_AmbientTextureSampler"), 0)
+		//glUniform1i(glGetUniformLocation(MainSceneProgram->GetID(), "u_AmbientTextureSampler"), 0)*/
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, TeapotStaticMesh->m_DiffuseTextureID);
-		MainSceneProgram->SetUniform("u_DiffuseTextureSampler", 1);*/
+		MainSceneProgram->SetUniform("u_DiffuseTextureSampler", 1);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, TeapotStaticMesh->m_SpecularTextureID);
 		MainSceneProgram->SetUniform("u_SpecularTextureSampler", 2);
 
+		
+
 		//Drawing code
-		MainSceneProgram->SetUniformMatrix4("u_Object", TeapotStaticMesh->GetGameObject()->GetTransform().data); 
+		/*MainSceneProgram->SetUniformMatrix4("u_Object", TeapotStaticMesh->GetGameObject()->GetTransform().data); 
 		glBindVertexArray(TeapotStaticMesh->GetVertexArrayID());
 
 		//TODO put the vertices and all data into GameObject or something
@@ -507,7 +513,7 @@ int main(void)
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
-		}
+		}*/
 
 		
 		//Unbind our RenderTexture so normal rendering buffers are brought back
@@ -556,6 +562,10 @@ int main(void)
 		
 		//Render the plane
 		MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, PlaneStaticMesh->m_NormalMapID);
+		MainSceneProgram->SetUniform("u_NormalMapSampler", 5);
+
 		glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
 		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
 		err = glGetError();

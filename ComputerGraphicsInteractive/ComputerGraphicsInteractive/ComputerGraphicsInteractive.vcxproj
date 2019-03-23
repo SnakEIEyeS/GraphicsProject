@@ -198,6 +198,8 @@
     <None Include="res\EnvironmentMappingVS.shader" />
     <None Include="res\LightsShadingFS.shader" />
     <None Include="res\LightsShadingVS.shader" />
+    <None Include="res\NormalMappingFS.shader" />
+    <None Include="res\NormalMappingVS.shader" />
     <None Include="res\RenderToTextureFS.shader" />
     <None Include="res\RenderToTextureVS.shader" />
     <None Include="res\TexturesFS.shader" />

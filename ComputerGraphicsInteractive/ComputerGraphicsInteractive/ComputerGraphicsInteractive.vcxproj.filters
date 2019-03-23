@@ -190,5 +190,7 @@
     <None Include="res\DebugDrawVS.shader" />
     <None Include="res\DebugDrawFS.shader" />
     <None Include="res\DebugDrawGS.shader" />
+    <None Include="res\NormalMappingVS.shader" />
+    <None Include="res\NormalMappingFS.shader" />
   </ItemGroup>
 </Project>

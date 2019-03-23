@@ -24,8 +24,8 @@ namespace Engine
 	{
 		static cyGLSLProgram* cyGraphicsProgram = nullptr;
 
-		static const char* SceneVertexShaderFile = "res/EnvironmentMappingVS.shader";
-		static const char* SceneFragmentShaderFile = "res/EnvironmentMappingFS.shader";
+		static const char* SceneVertexShaderFile = "res/NormalMappingVS.shader";
+		static const char* SceneFragmentShaderFile = "res/NormalMappingFS.shader";
 
 		static const char* RenderTextureVertexShaderFile = "res/RenderToTextureVS.shader";
 		static const char* RenderTextureFragmentShaderFile = "res/RenderToTextureFS.shader";
@@ -71,7 +71,7 @@ namespace Engine
 		Engine::Lighting::SpotLight& GetRenderSpotLight();
 
 		static const float AmbientConstant = 0.1f;
-		static const float SpecularAlpha = 5.f;
+		static const float SpecularAlpha = 50.f;
 
 		static const char* MaterialAmbientMapFile;
 		static const char* MaterialDiffuseMapFile;
