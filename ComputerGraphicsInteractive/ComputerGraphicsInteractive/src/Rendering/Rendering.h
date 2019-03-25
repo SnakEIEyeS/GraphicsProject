@@ -24,14 +24,17 @@ namespace Engine
 	{
 		static cyGLSLProgram* cyGraphicsProgram = nullptr;
 
-		static const char* SceneVertexShaderFile = "res/EnvironmentMappingVS.shader";
-		static const char* SceneFragmentShaderFile = "res/EnvironmentMappingFS.shader";
+		static const char* SceneVertexShaderFile = "res/NormalMappingVS.shader";
+		static const char* SceneFragmentShaderFile = "res/NormalMappingFS.shader";
 
 		static const char* RenderTextureVertexShaderFile = "res/RenderToTextureVS.shader";
 		static const char* RenderTextureFragmentShaderFile = "res/RenderToTextureFS.shader";
 
 		static const char* CubeMapTextureVertexShaderFile = "res/CubeMapVS.shader";
 		static const char* CubeMapTextureFragmentShaderFile = "res/CubeMapFS.shader";
+
+		static const char* QuadTessControlShaderFile = "res/QuadTCS.shader";
+		static const char* QuadTessEvalShaderFile = "res/QuadTES.shader";
 
 		static const char* DebugDrawVertexShaderFile = "res/DebugDrawVS.shader";
 		static const char* DebugDrawGeometryShaderFile = "res/DebugDrawGS.shader"; 
@@ -58,8 +61,9 @@ namespace Engine
 		void AnimateClearColor(float i_FrameTime);
 
 		cyGLSLProgram* GetGLProgram();
-		cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
-		cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile, const char* i_GeometryShaderFile);
+		//cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
+		cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile, 
+			const char* i_GeometryShaderFile = (const char*)nullptr, const char* i_TessControlShaderFile = (const char*)nullptr, const char* i_TessEvaluationShaderFile = (const char*)nullptr);
 		bool BuildAndUseProgram();
 		bool BuildAndUseProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
 
@@ -71,7 +75,7 @@ namespace Engine
 		Engine::Lighting::SpotLight& GetRenderSpotLight();
 
 		static const float AmbientConstant = 0.1f;
-		static const float SpecularAlpha = 5.f;
+		static const float SpecularAlpha = 50.f;
 
 		static const char* MaterialAmbientMapFile;
 		static const char* MaterialDiffuseMapFile;

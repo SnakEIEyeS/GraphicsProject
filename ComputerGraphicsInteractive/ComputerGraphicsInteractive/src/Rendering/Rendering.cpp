@@ -118,17 +118,18 @@ namespace Engine
 			return cyGraphicsProgram;
 		}
 
-		cyGLSLProgram* BuildProgram(const char * i_VertexShaderFile, const char * i_FragmentShaderFile)
+		/*cyGLSLProgram* BuildProgram(const char * i_VertexShaderFile, const char * i_FragmentShaderFile)
 		{
 			cyGLSLProgram* ProgramToReturn = new cyGLSLProgram();
 			ProgramToReturn->BuildFiles(i_VertexShaderFile, i_FragmentShaderFile, nullptr, nullptr, nullptr);
 			return ProgramToReturn;
-		}
+		}*/
 
-		cyGLSLProgram* BuildProgram(const char * i_VertexShaderFile, const char * i_FragmentShaderFile, const char * i_GeometryShaderFile)
+		cyGLSLProgram* BuildProgram(const char * i_VertexShaderFile, const char * i_FragmentShaderFile, 
+			const char* i_GeometryShaderFile, const char* i_TessControlShaderFile, const char* i_TessEvaluationShaderFile)
 		{
 			cyGLSLProgram* ProgramToReturn = new cyGLSLProgram();
-			ProgramToReturn->BuildFiles(i_VertexShaderFile, i_FragmentShaderFile, i_GeometryShaderFile, nullptr, nullptr);
+			ProgramToReturn->BuildFiles(i_VertexShaderFile, i_FragmentShaderFile, i_GeometryShaderFile, i_TessControlShaderFile, i_TessEvaluationShaderFile);
 			return ProgramToReturn;
 		}
 
