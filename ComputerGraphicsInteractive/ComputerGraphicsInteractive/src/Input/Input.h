@@ -41,5 +41,13 @@ namespace Engine
 		void SetCtrlBoundGameObject(Engine::Entity::GameObject* i_pGameObject);
 		void SetAltBoundGameObject(Engine::Entity::GameObject* i_pGameObject);
 		void SetShiftBoundGameObject(Engine::Entity::GameObject* i_pGameObject);
+
+		//Debug Drawing related
+		bool IsDebugDrawRequested();
+
+		//Tessellation related
+		void SetupMaxTessellationLevel();
+		float GetTessellationLevel();
+		void UpdateTessellationLevel(float i_DeltaTessLevel);
 	} //namespace Input
 } //namespace Engine

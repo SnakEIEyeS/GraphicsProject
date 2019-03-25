@@ -33,6 +33,9 @@ namespace Engine
 		static const char* CubeMapTextureVertexShaderFile = "res/CubeMapVS.shader";
 		static const char* CubeMapTextureFragmentShaderFile = "res/CubeMapFS.shader";
 
+		static const char* QuadTessControlShaderFile = "res/QuadTCS.shader";
+		static const char* QuadTessEvalShaderFile = "res/QuadTES.shader";
+
 		static const char* DebugDrawVertexShaderFile = "res/DebugDrawVS.shader";
 		static const char* DebugDrawGeometryShaderFile = "res/DebugDrawGS.shader"; 
 		static const char* DebugDrawFragmentShaderFile = "res/DebugDrawFS.shader";
@@ -58,8 +61,9 @@ namespace Engine
 		void AnimateClearColor(float i_FrameTime);
 
 		cyGLSLProgram* GetGLProgram();
-		cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
-		cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile, const char* i_GeometryShaderFile);
+		//cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
+		cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile, 
+			const char* i_GeometryShaderFile = (const char*)nullptr, const char* i_TessControlShaderFile = (const char*)nullptr, const char* i_TessEvaluationShaderFile = (const char*)nullptr);
 		bool BuildAndUseProgram();
 		bool BuildAndUseProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
 

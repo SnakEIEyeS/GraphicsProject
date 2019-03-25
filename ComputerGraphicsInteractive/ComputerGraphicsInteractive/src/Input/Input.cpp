@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <iostream>
 
+#include <glad/glad.h>
 #include <GL/glfw3.h>
 
 #include "../cyCodeBase/cyPoint.h"
@@ -17,6 +18,18 @@ namespace Engine
 		Engine::Entity::GameObject* CtrlBoundGameObject = nullptr;
 		Engine::Entity::GameObject* AltBoundGameObject = nullptr;
 		Engine::Entity::GameObject* ShiftBoundGameObject = nullptr;
+
+		//Debug Draw variables
+		bool AlreadyDown_Space = false;
+		bool DebugDrawRequested = true;
+
+		//Tessellation variables;
+		GLint TessellationLevelMax;
+		float TessellationLevelMin = 5.f;
+		float TessellationLevelCurrent = TessellationLevelMin;
+		float TessellationLevelDelta = 1.f;
+		bool AlreadyDown_LeftArrow = false;
+		bool AlreadyDown_RightArrow = false;
 
 		bool Startup()
 		{
@@ -58,6 +71,55 @@ namespace Engine
 			}
 
 			CheckMouseState(window);
+
+			if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+			{
+				if (!AlreadyDown_Space)
+				{
+					AlreadyDown_Space = true;
+					DebugDrawRequested = !DebugDrawRequested;
+				}
+			}
+			if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+			{
+				if (AlreadyDown_Space)
+				{
+					AlreadyDown_Space = false;
+				}
+				
+			}
+
+			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+			{
+				if (!AlreadyDown_LeftArrow)
+				{
+					AlreadyDown_LeftArrow = true;
+					UpdateTessellationLevel(-TessellationLevelDelta);
+				}
+			}
+			if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_RELEASE)
+			{
+				if (AlreadyDown_LeftArrow)
+				{
+					AlreadyDown_LeftArrow = false;
+				}
+			}
+
+			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+			{
+				if (!AlreadyDown_RightArrow)
+				{
+					AlreadyDown_RightArrow = true;
+					UpdateTessellationLevel(TessellationLevelDelta);
+				}
+			}
+			if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE)
+			{
+				if (AlreadyDown_RightArrow)
+				{
+					AlreadyDown_RightArrow = false;
+				}
+			}
 		}
 
 		void CheckMouseState(GLFWwindow * window)
@@ -210,6 +272,35 @@ namespace Engine
 		{
 			assert(i_pGameObject);
 			ShiftBoundGameObject = i_pGameObject;
+		}
+
+		bool IsDebugDrawRequested()
+		{
+			return DebugDrawRequested;
+		}
+
+		void SetupMaxTessellationLevel()
+		{
+			glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &TessellationLevelMax);
+			TessellationLevelCurrent = (float)TessellationLevelMax;
+		}
+
+		float GetTessellationLevel()
+		{
+			return TessellationLevelCurrent;
+		}
+
+		void UpdateTessellationLevel(float i_DeltaTessLevel)
+		{
+			TessellationLevelCurrent += i_DeltaTessLevel;
+			if (TessellationLevelCurrent < TessellationLevelMin)
+			{
+				TessellationLevelCurrent = TessellationLevelMin;
+			}
+			else if (TessellationLevelCurrent > TessellationLevelMax)
+			{
+				TessellationLevelCurrent = (float)TessellationLevelMax;
+			}
 		}
 
 	}
