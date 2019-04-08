@@ -196,6 +196,8 @@
     <None Include="res\DebugDrawVS.shader" />
     <None Include="res\EnvironmentMappingFS.shader" />
     <None Include="res\EnvironmentMappingVS.shader" />
+    <None Include="res\FinalShaders\PrimarySceneFS.shader" />
+    <None Include="res\FinalShaders\PrimarySceneVS.shader" />
     <None Include="res\LightsShadingFS.shader" />
     <None Include="res\LightsShadingVS.shader" />
     <None Include="res\NormalMappingFS.shader" />
