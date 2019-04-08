@@ -154,7 +154,13 @@ int main(void)
 	//const float PlaneYExtent = 15.f;
 	const float PlaneXExtent = 30.f;
 	const float PlaneYExtent = 30.f;
-	cyPoint3f PlaneTopLeft(-PlaneXExtent, PlaneYExtent, 0.f);
+
+	cyPoint3f ScreenPlaneTopLeft(-1.f, 1.f, 0.f);
+	cyPoint3f ScreenPlaneTopRight(1.f, 1.f, 0.f);
+	cyPoint3f ScreenPlaneBottomRight(1.f, -1.f, 0.f);
+	cyPoint3f ScreenPlaneBottomLeft(-1.f, -1.f, 0.f);
+
+	/*cyPoint3f PlaneTopLeft(-PlaneXExtent, PlaneYExtent, 0.f);
 	cyPoint3f PlaneTopRight(PlaneXExtent, PlaneYExtent, 0.f);
 	cyPoint3f PlaneBottomLeft(-PlaneXExtent, -PlaneYExtent, 0.f);
 	cyPoint3f PlaneBottomRight(PlaneXExtent, -PlaneYExtent, 0.f);
@@ -163,7 +169,14 @@ int main(void)
 	APlaneVertPos.push_back(PlaneBottomRight);
 	APlaneVertPos.push_back(PlaneBottomRight);
 	APlaneVertPos.push_back(PlaneTopRight);
-	APlaneVertPos.push_back(PlaneTopLeft);
+	APlaneVertPos.push_back(PlaneTopLeft);*/
+
+	APlaneVertPos.push_back(ScreenPlaneTopLeft);
+	APlaneVertPos.push_back(ScreenPlaneBottomLeft);
+	APlaneVertPos.push_back(ScreenPlaneBottomRight);
+	APlaneVertPos.push_back(ScreenPlaneBottomRight);
+	APlaneVertPos.push_back(ScreenPlaneTopRight);
+	APlaneVertPos.push_back(ScreenPlaneTopLeft);
 
 	unsigned int planeVertexPosBufferID;
 	glGenBuffers(1, &planeVertexPosBufferID);
@@ -193,10 +206,12 @@ int main(void)
 	//Plane TextureCoordinates
 	std::vector<cyPoint3f> APlaneVertTextures;
 	APlaneVertTextures.reserve(6);
+	
 	cyPoint3f PlaneUVTopLeft(0.f, 1.f, 0.f);
 	cyPoint3f PlaneUVTopRight(1.f, 1.f, 0.f);
 	cyPoint3f PlaneUVBottomRight(1.f, 0.f, 0.f);
 	cyPoint3f PlaneUVBottomLeft(0.f, 0.f, 0.f);
+
 	APlaneVertTextures.push_back(PlaneUVTopLeft);
 	APlaneVertTextures.push_back(PlaneUVBottomLeft);
 	APlaneVertTextures.push_back(PlaneUVBottomRight);
@@ -415,7 +430,19 @@ int main(void)
 		Engine::Input::Update(window, dt);
 		Engine::Rendering::Update(window, dt);
 
-		
+/* ****************** Bind Render Texture ****************** */
+		//Bind our own RenderTexture
+		//glActiveTexture(GL_TEXTURE3);
+		SceneRenderTexture->Bind();
+
+		//SceneRenderTexture->BindTexture(3);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
+		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+/********************* Render CubeMap **********************/
 		//Render CubeMap
 		glDisable(GL_DEPTH_TEST);
 		err = glGetError();
@@ -456,20 +483,7 @@ int main(void)
 		}
 
 		
-		
-		
-		//Bind our own RenderTexture
-		//glActiveTexture(GL_TEXTURE3);
-		/*SceneRenderTexture->Bind();
-
-		//SceneRenderTexture->BindTexture(3);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
-		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
-		
-		
-		
+/****************** Render Main Scene ********************/
 		//Render the scene to our RenderTexture
 		MainSceneProgram->Bind();
 		err = glGetError();
@@ -536,7 +550,7 @@ int main(void)
 
 		
 		//Unbind our RenderTexture so normal rendering buffers are brought back
-		/*SceneRenderTexture->Unbind();
+		SceneRenderTexture->Unbind();
 		err = glGetError();
 		if (err != 0)
 		{
@@ -573,14 +587,14 @@ int main(void)
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
-		}*/
+		}
 		
 
 		//Draw plane on usual rendering buffers
 		
 		
 		//Render the plane
-		MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
+		//MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
 		/*glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_2D, PlaneStaticMesh->m_NormalMapID);
 		MainSceneProgram->SetUniform("u_NormalMapSampler", 5);

@@ -27,8 +27,8 @@ namespace Engine
 		static const char* SceneVertexShaderFile = "res/FinalShaders/PrimarySceneVS.shader";
 		static const char* SceneFragmentShaderFile = "res/FinalShaders/PrimarySceneFS.shader";
 
-		static const char* RenderTextureVertexShaderFile = "res/RenderToTextureVS.shader";
-		static const char* RenderTextureFragmentShaderFile = "res/RenderToTextureFS.shader";
+		static const char* RenderTextureVertexShaderFile = "res/FinalShaders/RenderToScreenPlaneVS.shader";
+		static const char* RenderTextureFragmentShaderFile = "res/FinalShaders/RenderToScreenPlaneFS.shader";
 
 		static const char* CubeMapTextureVertexShaderFile = "res/CubeMapVS.shader";
 		static const char* CubeMapTextureFragmentShaderFile = "res/CubeMapFS.shader";
