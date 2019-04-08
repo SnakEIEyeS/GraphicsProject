@@ -194,5 +194,7 @@
     <None Include="res\NormalMappingFS.shader" />
     <None Include="res\QuadTCS.shader" />
     <None Include="res\QuadTES.shader" />
+    <None Include="res\FinalShaders\PrimarySceneVS.shader" />
+    <None Include="res\FinalShaders\PrimarySceneFS.shader" />
   </ItemGroup>
 </Project>

@@ -161,9 +161,9 @@ int main(void)
 	APlaneVertPos.push_back(PlaneTopLeft);
 	APlaneVertPos.push_back(PlaneBottomLeft);
 	APlaneVertPos.push_back(PlaneBottomRight);
-	//APlaneVertPos.push_back(PlaneBottomRight);
+	APlaneVertPos.push_back(PlaneBottomRight);
 	APlaneVertPos.push_back(PlaneTopRight);
-	//APlaneVertPos.push_back(PlaneTopLeft);
+	APlaneVertPos.push_back(PlaneTopLeft);
 
 	unsigned int planeVertexPosBufferID;
 	glGenBuffers(1, &planeVertexPosBufferID);
@@ -177,7 +177,7 @@ int main(void)
 	std::vector<cyPoint3f> APlaneVertNormals;
 	APlaneVertNormals.reserve(6);
 	cyPoint3f UpVector(0.f, 0.f, 1.f);
-	const unsigned int PlaneVertices = 4;
+	const unsigned int PlaneVertices = 6;
 	for (int i = 0; i < PlaneVertices; i++)
 	{
 		APlaneVertNormals.push_back(UpVector);
@@ -200,9 +200,9 @@ int main(void)
 	APlaneVertTextures.push_back(PlaneUVTopLeft);
 	APlaneVertTextures.push_back(PlaneUVBottomLeft);
 	APlaneVertTextures.push_back(PlaneUVBottomRight);
-	//APlaneVertTextures.push_back(PlaneUVBottomRight);
+	APlaneVertTextures.push_back(PlaneUVBottomRight);
 	APlaneVertTextures.push_back(PlaneUVTopRight);
-	//APlaneVertTextures.push_back(PlaneUVTopLeft);	
+	APlaneVertTextures.push_back(PlaneUVTopLeft);	
 
 	unsigned int planeVertexTextureBufferID;
 	glGenBuffers(1, &planeVertexTextureBufferID);
@@ -213,8 +213,8 @@ int main(void)
 
 	unsigned int PlaneTangentsBufferID;
 	unsigned int PlaneBitangentsBufferID;
-	//Engine::ModelHandling::GetModelHandler()->CalculatePlaneTriTangentsBitangents(APlaneVertPos, APlaneVertTextures, planeVertexArrayID, PlaneTangentsBufferID, PlaneBitangentsBufferID);
-	Engine::ModelHandling::GetModelHandler()->CalculatePlaneQuadTangentsBitangents(APlaneVertPos, APlaneVertTextures, planeVertexArrayID, PlaneTangentsBufferID, PlaneBitangentsBufferID);
+	Engine::ModelHandling::GetModelHandler()->CalculatePlaneTriTangentsBitangents(APlaneVertPos, APlaneVertTextures, planeVertexArrayID, PlaneTangentsBufferID, PlaneBitangentsBufferID);
+	//Engine::ModelHandling::GetModelHandler()->CalculatePlaneQuadTangentsBitangents(APlaneVertPos, APlaneVertTextures, planeVertexArrayID, PlaneTangentsBufferID, PlaneBitangentsBufferID);
 
 	Engine::Entity::StaticMesh* PlaneStaticMesh = new Engine::Entity::StaticMesh(new Engine::Entity::GameObject(), planeVertexArrayID);
 	const_cast<Engine::Entity::GameObject*>(PlaneStaticMesh->GetGameObject())->SetPosition(cyPoint3f(0.f, 0.f, 0.f));
@@ -271,12 +271,13 @@ int main(void)
 
 
 	//Engine::Rendering::BuildAndUseProgram();
-	cyGLSLProgram* MainSceneProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::SceneFragmentShaderFile, 
-		nullptr, Engine::Rendering::QuadTessControlShaderFile, Engine::Rendering::QuadTessEvalShaderFile);
+	/*cyGLSLProgram* MainSceneProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::SceneFragmentShaderFile, 
+		nullptr, Engine::Rendering::QuadTessControlShaderFile, Engine::Rendering::QuadTessEvalShaderFile);*/
+	cyGLSLProgram* MainSceneProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::SceneFragmentShaderFile);
 	cyGLSLProgram* RenderTextureProgram = Engine::Rendering::BuildProgram(Engine::Rendering::RenderTextureVertexShaderFile, Engine::Rendering::RenderTextureFragmentShaderFile);
 	cyGLSLProgram* CubeMapTextureProgram = Engine::Rendering::BuildProgram(Engine::Rendering::CubeMapTextureVertexShaderFile, Engine::Rendering::CubeMapTextureFragmentShaderFile);
-	cyGLSLProgram* DebugDrawProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::DebugDrawFragmentShaderFile, 
-		Engine::Rendering::DebugDrawGeometryShaderFile, Engine::Rendering::QuadTessControlShaderFile, Engine::Rendering::QuadTessEvalShaderFile);
+	/*cyGLSLProgram* DebugDrawProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::DebugDrawFragmentShaderFile, 
+		Engine::Rendering::DebugDrawGeometryShaderFile, Engine::Rendering::QuadTessControlShaderFile, Engine::Rendering::QuadTessEvalShaderFile);*/
 	err = glGetError();
 	if (err != 0)
 	{
@@ -495,8 +496,8 @@ int main(void)
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMapStaticMesh->m_DiffuseTextureID);
 		MainSceneProgram->SetUniform("u_CubeMapSampler", 4);
-		/*MainSceneProgram->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
-		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::MaterialSpecularExponent);*/
+		MainSceneProgram->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
+		/*MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::MaterialSpecularExponent);*/
 		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);
 		err = glGetError();
 		if (err != 0)
@@ -521,7 +522,7 @@ int main(void)
 		
 
 		//Drawing code
-		/*MainSceneProgram->SetUniformMatrix4("u_Object", TeapotStaticMesh->GetGameObject()->GetTransform().data); 
+		MainSceneProgram->SetUniformMatrix4("u_Object", TeapotStaticMesh->GetGameObject()->GetTransform().data); 
 		glBindVertexArray(TeapotStaticMesh->GetVertexArrayID());
 
 		//TODO put the vertices and all data into GameObject or something
@@ -531,7 +532,7 @@ int main(void)
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
-		}*/
+		}
 
 		
 		//Unbind our RenderTexture so normal rendering buffers are brought back
@@ -580,24 +581,24 @@ int main(void)
 		
 		//Render the plane
 		MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
-		glActiveTexture(GL_TEXTURE5);
+		/*glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_2D, PlaneStaticMesh->m_NormalMapID);
 		MainSceneProgram->SetUniform("u_NormalMapSampler", 5);
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, PlaneStaticMesh->m_DisplacementMapID);
 		MainSceneProgram->SetUniform("u_DisplacementMap", 6);
-		MainSceneProgram->SetUniform("u_DisplacementFactor_ModelSpace", PlaneStaticMesh->m_DisplacementFactor);
+		MainSceneProgram->SetUniform("u_DisplacementFactor_ModelSpace", PlaneStaticMesh->m_DisplacementFactor);*/
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
 		}
 
 		//Set Tessellation uniforms
-		MainSceneProgram->SetUniform("TessellationControlLevel", Engine::Input::GetTessellationLevel());
+		/*MainSceneProgram->SetUniform("TessellationControlLevel", Engine::Input::GetTessellationLevel());
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
-		}
+		}*/
 
 		//glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
 		glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
@@ -606,14 +607,14 @@ int main(void)
 		{
 			printf("Error code: %d\n", err);
 		}
-		glPatchParameteri(GL_PATCH_VERTICES, Engine::ModelHandling::GetModelHandler()->NumPatchVertices);
+		/*glPatchParameteri(GL_PATCH_VERTICES, Engine::ModelHandling::GetModelHandler()->NumPatchVertices);
 		err = glGetError();
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
 		}
-		glDrawArrays(GL_PATCHES, 0, APlaneVertPos.size());
-		//glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
+		glDrawArrays(GL_PATCHES, 0, APlaneVertPos.size());*/
+		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
 		err = glGetError();
 		if (err != 0)
 		{
@@ -622,7 +623,7 @@ int main(void)
 
 
 /***********************      *** Debug Draw ***       ***********************************/
-		if (Engine::Input::IsDebugDrawRequested())
+		/*if (Engine::Input::IsDebugDrawRequested())
 		{
 			DebugDrawProgram->Bind();
 			err = glGetError();
@@ -677,7 +678,7 @@ int main(void)
 			{
 				printf("Error code: %d\n", err);
 			}
-		}
+		}*/
 		
 
 		//Drawing code end
