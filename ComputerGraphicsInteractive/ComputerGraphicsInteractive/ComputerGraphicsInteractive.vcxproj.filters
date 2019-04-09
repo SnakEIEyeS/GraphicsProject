@@ -198,5 +198,6 @@
     <None Include="res\FinalShaders\PrimarySceneFS.shader" />
     <None Include="res\FinalShaders\RenderToScreenPlaneVS.shader" />
     <None Include="res\FinalShaders\RenderToScreenPlaneFS.shader" />
+    <None Include="res\FinalShaders\EdgeDetectionFS.shader" />
   </ItemGroup>
 </Project>

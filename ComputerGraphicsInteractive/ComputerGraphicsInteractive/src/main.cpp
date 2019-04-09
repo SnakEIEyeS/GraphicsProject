@@ -567,10 +567,19 @@ int main(void)
 			printf("Error code: %d\n", err);
 		}
 
-		RenderTextureProgram->SetUniformMatrix4("u_PlaneProjection", MainSceneCamera->GetPerspectiveProjection().data);
+		/*RenderTextureProgram->SetUniformMatrix4("u_PlaneProjection", MainSceneCamera->GetPerspectiveProjection().data);
 		RenderTextureProgram->SetUniformMatrix4("u_PlaneCamera", MainSceneCamera->GetGameObject()->GetTransform().data);
-		RenderTextureProgram->SetUniformMatrix4("u_PlaneObject", PlaneStaticMesh->GetGameObject()->GetTransform().data);
+		RenderTextureProgram->SetUniformMatrix4("u_PlaneObject", PlaneStaticMesh->GetGameObject()->GetTransform().data);*/
 		err = glGetError();
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
+
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
@@ -584,6 +593,10 @@ int main(void)
 		//SceneRenderTexture->BuildTextureMipmaps();
 		RenderTextureProgram->SetUniform("u_RenderToSampler", 3);
 		err = glGetError();
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
