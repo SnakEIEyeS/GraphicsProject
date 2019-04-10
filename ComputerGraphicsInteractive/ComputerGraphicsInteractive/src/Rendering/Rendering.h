@@ -27,8 +27,17 @@ namespace Engine
 		static const char* SceneVertexShaderFile = "res/FinalShaders/PrimarySceneVS.shader";
 		static const char* SceneFragmentShaderFile = "res/FinalShaders/PrimarySceneFS.shader";
 
+		static const char* EdgeDetectionVertexShaderFile = "res/FinalShaders/RenderToScreenPlaneVS.shader";
+		static const char* EdgeDetectionFragmentShaderFile = "res/FinalShaders/EdgeDetectionFS.shader";
+
+		static const char* BlendingWeightsVertexShaderFile = "res/FinalShaders/RenderToScreenPlaneVS.shader";
+		static const char* BlendingWeightsFragmentShaderFile = "res/FinalShaders/BlendingWeightsFS.shader";
+
+		static const char* NeighborhoodBlendingVertexShaderFile = "res/FinalShaders/RenderToScreenPlaneVS.shader";
+		static const char* NeighborhoodBlendingFragmentShaderFile = "res/FinalShaders/NeighborhoodBlendingFS.shader";
+
 		static const char* RenderTextureVertexShaderFile = "res/FinalShaders/RenderToScreenPlaneVS.shader";
-		static const char* RenderTextureFragmentShaderFile = "res/FinalShaders/EdgeDetectionFS.shader";
+		static const char* RenderTextureFragmentShaderFile = "res/FinalShaders/RenderToScreenPlaneFS.shader";
 
 		static const char* CubeMapTextureVertexShaderFile = "res/CubeMapVS.shader";
 		static const char* CubeMapTextureFragmentShaderFile = "res/CubeMapFS.shader";
@@ -84,6 +93,8 @@ namespace Engine
 		void SetMaterialDetails(cy::TriMesh* i_pTriMeshObj, int i_MaterialIndex);
 
 		void DecodeTexturePNG(std::string i_TextureFilename, std::vector<unsigned char> & o_ImageData, unsigned int & o_ImageWidth, unsigned int & o_ImageHeight);
+
+		void CreateRenderBuffer(cyGLRenderTexture2D* i_pRenderTexture, bool i_bUseDepthBuffer, int i_NumChannels, GLsizei i_WindowWidth, GLsizei i_WindowHeight, GLuint i_TextureUnit);
 
 		float GetMaxAnisotropicLevel();
 	}
