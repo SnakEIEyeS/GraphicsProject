@@ -589,7 +589,7 @@ int main(void)
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, EdgesTexture->GetTextureID());
 		glGenerateMipmap(GL_TEXTURE_2D);
-		BlendingWeightsProgram->SetUniform("u_RenderToSampler", 3);
+		BlendingWeightsProgram->SetUniform("u_EdgesTexSampler", 3);
 		err = glGetError();
 		if (err != 0)
 		{
