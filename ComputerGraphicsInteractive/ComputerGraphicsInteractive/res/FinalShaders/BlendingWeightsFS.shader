@@ -14,7 +14,7 @@ const vec2 StepSizeY = vec2(0.f, 2.f);
 const float StartSearchOffset = 1.5f;
 const float EdgelExistenceRequisite = 0.9f;
 
-const int NumDistances = 65;
+const int NumDistances = 129;
 const float AreaSize = NumDistances * 5.f;
 
 float SearchXLeft(vec2 i_VertexTexture);

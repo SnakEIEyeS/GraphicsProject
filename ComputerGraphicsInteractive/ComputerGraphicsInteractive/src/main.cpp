@@ -336,6 +336,9 @@ int main(void)
 	cyGLRenderTexture2D* EdgesTexture = new cyGLRenderTexture2D();
 	Engine::Rendering::CreateRenderBuffer(EdgesTexture, true, 4, WindowWidth, WindowHeight, GL_TEXTURE3);
 
+	cyGLRenderTexture2D* BlendingWeightsTexture = new cyGLRenderTexture2D();
+	Engine::Rendering::CreateRenderBuffer(BlendingWeightsTexture, true, 4, WindowWidth, WindowHeight, GL_TEXTURE3);
+
 
 /************************* Create CubeMap ***************************/
 	//CubeMap
@@ -585,6 +588,17 @@ int main(void)
 
 /********************* Blending Weights Pass ***********************/
 		
+		BlendingWeightsTexture->Bind();
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, BlendingWeightsTexture->GetTextureID());
+		glClearColor(0.f, 0.f, 0.f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		err = glGetError();
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
+
 		BlendingWeightsProgram->Bind();
 		ProgramBuilt = !BlendingWeightsProgram->IsNull();
 		assert(ProgramBuilt);
@@ -605,6 +619,67 @@ int main(void)
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_2D, MLAAAreaTextureID);
 		BlendingWeightsProgram->SetUniform("u_AreaTexSampler", 4);
+		err = glGetError();
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
+
+
+		//Draw plane on usual rendering buffers
+
+
+		//Render the plane
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
+
+		glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
+		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
+		err = glGetError();
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
+
+		BlendingWeightsTexture->Unbind();
+		err = glGetError();
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
+
+
+/******************** 4-Neighbor Blending Pass **********************/
+
+		NeighborhoodBlendingProgram->Bind();
+		ProgramBuilt = !NeighborhoodBlendingProgram->IsNull();
+		assert(ProgramBuilt);
+		err = glGetError();
+		if (err != 0)
+		{
+			printf("Error code: %d\n", err);
+		}
+
+		glClearColor(0.f, 0.f, 0.f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//Bind the Edges Texture
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
+		glGenerateMipmap(GL_TEXTURE_2D);
+		NeighborhoodBlendingProgram->SetUniform("u_ColorTexSampler", 3);
+		
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, BlendingWeightsTexture->GetTextureID());
+		//glGenerateMipmap(GL_TEXTURE_2D);
+		NeighborhoodBlendingProgram->SetUniform("u_BlendWeightTexSampler", 4);
+		
 		err = glGetError();
 		if (err != 0)
 		{
