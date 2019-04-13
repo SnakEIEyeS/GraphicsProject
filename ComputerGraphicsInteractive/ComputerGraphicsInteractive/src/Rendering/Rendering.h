@@ -48,6 +48,8 @@ namespace Engine
 		static const char* DebugDrawVertexShaderFile = "res/DebugDrawVS.shader";
 		static const char* DebugDrawGeometryShaderFile = "res/DebugDrawGS.shader"; 
 		static const char* DebugDrawFragmentShaderFile = "res/DebugDrawFS.shader";
+
+		const std::string MLAAAreaTextureFilename = "../Resources/MLAA/AreaMap65.png";
 		
 		
 		struct Color

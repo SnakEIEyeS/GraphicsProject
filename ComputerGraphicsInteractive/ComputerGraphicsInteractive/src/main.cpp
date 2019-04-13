@@ -325,7 +325,7 @@ int main(void)
 	Engine::Input::SetCameraGameObject(MainSceneCamera->GetGameObject());
 
 
-	/********************** Create RenderBuffers *************************/
+/********************** Create RenderBuffers *************************/
 
 	//Create RenderTexture for teapot's RenderToTexture operation
 	
@@ -337,7 +337,7 @@ int main(void)
 	Engine::Rendering::CreateRenderBuffer(EdgesTexture, true, 4, WindowWidth, WindowHeight, GL_TEXTURE3);
 
 
-	/************************* Create CubeMap ***************************/
+/************************* Create CubeMap ***************************/
 	//CubeMap
 	unsigned int cubeMapVertexArrayID;
 	glGenVertexArrays(1, &cubeMapVertexArrayID);
@@ -382,6 +382,18 @@ int main(void)
 		printf("Error code: %d\n", err);
 	}
 
+	
+/***************** Setup MLAA Area Texture ******************/
+	
+	unsigned int MLAAAreaTextureID = Engine::ModelHandling::GetModelHandler()->CreateTexture2D(Engine::Rendering::MLAAAreaTextureFilename.c_str(), 1);
+	err = glGetError();
+	if (err != 0)
+	{
+		printf("Error code: %d\n", err);
+	}
+	
+/************************************************************/
+	
 	glEnable(GL_DEPTH_TEST);
 
 	/* Loop until the user closes the window */
@@ -522,7 +534,7 @@ int main(void)
 		}
 		
 
-		/********************** Edge Detection *************************/
+/********************** Edge Detection *************************/
 		
 		EdgesTexture->Bind();
 		glActiveTexture(GL_TEXTURE3);
@@ -571,7 +583,7 @@ int main(void)
 			printf("Error code: %d\n", err);
 		}
 
-		/********************* Blending Weights Pass ***********************/
+/********************* Blending Weights Pass ***********************/
 		
 		BlendingWeightsProgram->Bind();
 		ProgramBuilt = !BlendingWeightsProgram->IsNull();
@@ -590,6 +602,9 @@ int main(void)
 		glBindTexture(GL_TEXTURE_2D, EdgesTexture->GetTextureID());
 		glGenerateMipmap(GL_TEXTURE_2D);
 		BlendingWeightsProgram->SetUniform("u_EdgesTexSampler", 3);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, MLAAAreaTextureID);
+		BlendingWeightsProgram->SetUniform("u_AreaTexSampler", 4);
 		err = glGetError();
 		if (err != 0)
 		{
