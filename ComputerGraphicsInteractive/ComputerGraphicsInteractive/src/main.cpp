@@ -393,13 +393,13 @@ int main(void)
 	const_cast<Engine::Entity::GameObject*>(CubeMapStaticMesh->GetGameObject())->SetRotation(cyPoint3f(0.f, 0.f, 0.f));
 
 	//CubeMap Texture
-	const unsigned int numCubeMapTextureFaces = 6; 
+	/*const unsigned int numCubeMapTextureFaces = 6; 
 	std::string CubeMapTextureFaces[numCubeMapTextureFaces] = { "../Resources/CubeMap/cubemap_posx.png", "../Resources/CubeMap/cubemap_negx.png",
 											"../Resources/CubeMap/cubemap_posy.png", "../Resources/CubeMap/cubemap_negy.png",
 											"../Resources/CubeMap/cubemap_posz.png", "../Resources/CubeMap/cubemap_negz.png" 
 										};
 	
-	CubeMapStaticMesh->m_DiffuseTextureID = Engine::ModelHandling::GetModelHandler()->CreateTextureCubeMap(CubeMapTextureFaces, numCubeMapTextureFaces, 4);
+	CubeMapStaticMesh->m_DiffuseTextureID = Engine::ModelHandling::GetModelHandler()->CreateTextureCubeMap(CubeMapTextureFaces, numCubeMapTextureFaces, 4);*/
 
 
 	Engine::Rendering::GetRenderSpotLight().GetGameObject()->SetRotation(
@@ -426,7 +426,7 @@ int main(void)
 /************************************************************/
 	
 	bool BlendingWeightsPass = true;
-	bool NeighborBlendingPass = false;
+	bool NeighborBlendingPass = true;
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -451,13 +451,13 @@ int main(void)
 		//SceneRenderTexture->BindTexture(3);
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
-		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
+		glClearColor(0.f, 0.f, 1.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 /********************* Render CubeMap **********************/
 		//Render CubeMap
-		glDisable(GL_DEPTH_TEST);
+		/*glDisable(GL_DEPTH_TEST);
 		err = glGetError();
 		if (err != 0)
 		{
@@ -490,7 +490,7 @@ int main(void)
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
-		}
+		}*/
 
 		
 /****************** Render Main Scene ********************/
@@ -661,8 +661,10 @@ int main(void)
 			glBindTexture(GL_TEXTURE_2D, EdgesTexture->GetTextureID());
 			glGenerateMipmap(GL_TEXTURE_2D);
 			BlendingWeightsProgram->SetUniform("u_EdgesTexSampler", 3);
+			
 			glActiveTexture(GL_TEXTURE4);
 			glBindTexture(GL_TEXTURE_2D, MLAAAreaTextureID);
+			glGenerateMipmap(GL_TEXTURE_2D);
 			BlendingWeightsProgram->SetUniform("u_AreaTexSampler", 4);
 			err = glGetError();
 			if (err != 0)
@@ -729,7 +731,7 @@ int main(void)
 
 			glActiveTexture(GL_TEXTURE4);
 			glBindTexture(GL_TEXTURE_2D, BlendingWeightsTexture->GetTextureID());
-			//glGenerateMipmap(GL_TEXTURE_2D);
+			glGenerateMipmap(GL_TEXTURE_2D);
 			NeighborhoodBlendingProgram->SetUniform("u_BlendWeightTexSampler", 4);
 
 			err = glGetError();
@@ -764,6 +766,7 @@ int main(void)
 
 
 /***********************      *** Debug Draw ***       ***********************************/
+
 		/*if (Engine::Input::IsDebugDrawRequested())
 		{
 			DebugDrawProgram->Bind();
