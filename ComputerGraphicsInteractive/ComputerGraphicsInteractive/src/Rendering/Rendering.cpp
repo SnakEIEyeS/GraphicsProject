@@ -189,6 +189,52 @@ namespace Engine
 			//the pixels are now in the vector "image", 4 bytes per pixel, ordered RGBARGBA..., use it as texture, draw it, ...
 		}
 
+		void CreateRenderBuffer(cyGLRenderTexture2D* i_pRenderTexture, bool i_bUseDepthBuffer, int i_NumChannels, GLsizei i_WindowWidth, GLsizei i_WindowHeight, GLuint i_TextureUnit)
+		{
+			glActiveTexture(i_TextureUnit);
+			int err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+			
+			bool bRenderTextureReady = i_pRenderTexture->Initialize(i_bUseDepthBuffer, i_NumChannels, i_WindowWidth, i_WindowHeight, cy::GL::TYPE_UBYTE);
+			assert(bRenderTextureReady);
+
+			//Set texture settings for texture that will be used by Plane
+			glActiveTexture(i_TextureUnit);
+			glBindTexture(GL_TEXTURE_2D, i_pRenderTexture->GetTextureID());
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+			glGenerateMipmap(GL_TEXTURE_2D);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+		}
+
 		float GetMaxAnisotropicLevel()
 		{
 			float MaxAnisotropicLevel;

@@ -154,7 +154,13 @@ int main(void)
 	//const float PlaneYExtent = 15.f;
 	const float PlaneXExtent = 30.f;
 	const float PlaneYExtent = 30.f;
-	cyPoint3f PlaneTopLeft(-PlaneXExtent, PlaneYExtent, 0.f);
+
+	cyPoint3f ScreenPlaneTopLeft(-1.f, 1.f, 0.f);
+	cyPoint3f ScreenPlaneTopRight(1.f, 1.f, 0.f);
+	cyPoint3f ScreenPlaneBottomRight(1.f, -1.f, 0.f);
+	cyPoint3f ScreenPlaneBottomLeft(-1.f, -1.f, 0.f);
+
+	/*cyPoint3f PlaneTopLeft(-PlaneXExtent, PlaneYExtent, 0.f);
 	cyPoint3f PlaneTopRight(PlaneXExtent, PlaneYExtent, 0.f);
 	cyPoint3f PlaneBottomLeft(-PlaneXExtent, -PlaneYExtent, 0.f);
 	cyPoint3f PlaneBottomRight(PlaneXExtent, -PlaneYExtent, 0.f);
@@ -163,7 +169,14 @@ int main(void)
 	APlaneVertPos.push_back(PlaneBottomRight);
 	APlaneVertPos.push_back(PlaneBottomRight);
 	APlaneVertPos.push_back(PlaneTopRight);
-	APlaneVertPos.push_back(PlaneTopLeft);
+	APlaneVertPos.push_back(PlaneTopLeft);*/
+
+	APlaneVertPos.push_back(ScreenPlaneTopLeft);
+	APlaneVertPos.push_back(ScreenPlaneBottomLeft);
+	APlaneVertPos.push_back(ScreenPlaneBottomRight);
+	APlaneVertPos.push_back(ScreenPlaneBottomRight);
+	APlaneVertPos.push_back(ScreenPlaneTopRight);
+	APlaneVertPos.push_back(ScreenPlaneTopLeft);
 
 	unsigned int planeVertexPosBufferID;
 	glGenBuffers(1, &planeVertexPosBufferID);
@@ -193,10 +206,12 @@ int main(void)
 	//Plane TextureCoordinates
 	std::vector<cyPoint3f> APlaneVertTextures;
 	APlaneVertTextures.reserve(6);
+	
 	cyPoint3f PlaneUVTopLeft(0.f, 1.f, 0.f);
 	cyPoint3f PlaneUVTopRight(1.f, 1.f, 0.f);
 	cyPoint3f PlaneUVBottomRight(1.f, 0.f, 0.f);
 	cyPoint3f PlaneUVBottomLeft(0.f, 0.f, 0.f);
+
 	APlaneVertTextures.push_back(PlaneUVTopLeft);
 	APlaneVertTextures.push_back(PlaneUVBottomLeft);
 	APlaneVertTextures.push_back(PlaneUVBottomRight);
@@ -274,6 +289,9 @@ int main(void)
 	/*cyGLSLProgram* MainSceneProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::SceneFragmentShaderFile, 
 		nullptr, Engine::Rendering::QuadTessControlShaderFile, Engine::Rendering::QuadTessEvalShaderFile);*/
 	cyGLSLProgram* MainSceneProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::SceneFragmentShaderFile);
+	cyGLSLProgram* EdgeDetectionProgram = Engine::Rendering::BuildProgram(Engine::Rendering::EdgeDetectionVertexShaderFile, Engine::Rendering::EdgeDetectionFragmentShaderFile);
+	cyGLSLProgram* BlendingWeightsProgram = Engine::Rendering::BuildProgram(Engine::Rendering::BlendingWeightsVertexShaderFile, Engine::Rendering::BlendingWeightsFragmentShaderFile);
+	cyGLSLProgram* NeighborhoodBlendingProgram = Engine::Rendering::BuildProgram(Engine::Rendering::NeighborhoodBlendingVertexShaderFile, Engine::Rendering::NeighborhoodBlendingFragmentShaderFile);
 	cyGLSLProgram* RenderTextureProgram = Engine::Rendering::BuildProgram(Engine::Rendering::RenderTextureVertexShaderFile, Engine::Rendering::RenderTextureFragmentShaderFile);
 	cyGLSLProgram* CubeMapTextureProgram = Engine::Rendering::BuildProgram(Engine::Rendering::CubeMapTextureVertexShaderFile, Engine::Rendering::CubeMapTextureFragmentShaderFile);
 	/*cyGLSLProgram* DebugDrawProgram = Engine::Rendering::BuildProgram(Engine::Rendering::SceneVertexShaderFile, Engine::Rendering::DebugDrawFragmentShaderFile, 
@@ -306,56 +324,51 @@ int main(void)
 	//Engine::Input::CameraGameObject = MainSceneCamera->GetGameObject();
 	Engine::Input::SetCameraGameObject(MainSceneCamera->GetGameObject());
 
-	
-	//Create RenderTexture for teapot's RenderToTexture operation
-	glActiveTexture(GL_TEXTURE3);
-	err = glGetError();
-	if (err != 0)
-	{
-		printf("Error code: %d\n", err);
-	}
-	cyGLRenderTexture2D* SceneRenderTexture = new cyGLRenderTexture2D();
-	bool bRenderTextureReady = SceneRenderTexture->Initialize(true, 4, WindowWidth, WindowHeight, cy::GL::TYPE_UBYTE);
-	assert(bRenderTextureReady);
 
-	//Set texture settings for texture that will be used by Plane
-	//SceneRenderTexture->BindTexture(3);
+/********************** Create RenderBuffers *************************/
+
+	//Create RenderTexture for teapot's RenderToTexture operation
+	
+
+	cyGLRenderTexture2D* SceneRenderTexture = new cyGLRenderTexture2D();
+	Engine::Rendering::CreateRenderBuffer(SceneRenderTexture, true, 4, WindowWidth, WindowHeight, GL_TEXTURE3);
+
+	cyGLRenderDepth2D* SceneDepthTexture = new cyGLRenderDepth2D();
 	glActiveTexture(GL_TEXTURE3);
-	//SceneRenderTexture->BindTexture();
-	glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
+	bool bRenderTextureReady = SceneDepthTexture->Initialize(true, WindowWidth, WindowHeight);
+	assert(bRenderTextureReady);
 	err = glGetError();
 	if (err != 0)
 	{
 		printf("Error code: %d\n", err);
 	}
+
+	/*
+	//Set texture settings for texture that will be used by Plane
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, SceneDepthTexture->GetTextureID());
+	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	err = glGetError();
-	if (err != 0)
-	{
-		printf("Error code: %d\n", err);
-	}
+	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	err = glGetError();
-	if (err != 0)
-	{
-		printf("Error code: %d\n", err);
-	}
 	glGenerateMipmap(GL_TEXTURE_2D);
-	err = glGetError();
-	if (err != 0)
-	{
-		printf("Error code: %d\n", err);
-	}
+	
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());
 	err = glGetError();
 	if (err != 0)
 	{
 		printf("Error code: %d\n", err);
 	}
-	/*SceneRenderTexture->SetTextureFilteringMode(GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-	SceneRenderTexture->BuildTextureMipmaps();
-	glTexParameterf(SceneRenderTexture->GetTextureID(), GL_TEXTURE_MAX_ANISOTROPY, Engine::Rendering::GetMaxAnisotropicLevel());*/
+	*/
 
+	cyGLRenderTexture2D* EdgesTexture = new cyGLRenderTexture2D();
+	Engine::Rendering::CreateRenderBuffer(EdgesTexture, true, 4, WindowWidth, WindowHeight, GL_TEXTURE3);
+
+	cyGLRenderTexture2D* BlendingWeightsTexture = new cyGLRenderTexture2D();
+	Engine::Rendering::CreateRenderBuffer(BlendingWeightsTexture, true, 4, WindowWidth, WindowHeight, GL_TEXTURE3);
+
+
+/************************* Create CubeMap ***************************/
 	//CubeMap
 	unsigned int cubeMapVertexArrayID;
 	glGenVertexArrays(1, &cubeMapVertexArrayID);
@@ -380,13 +393,13 @@ int main(void)
 	const_cast<Engine::Entity::GameObject*>(CubeMapStaticMesh->GetGameObject())->SetRotation(cyPoint3f(0.f, 0.f, 0.f));
 
 	//CubeMap Texture
-	const unsigned int numCubeMapTextureFaces = 6; 
+	/*const unsigned int numCubeMapTextureFaces = 6; 
 	std::string CubeMapTextureFaces[numCubeMapTextureFaces] = { "../Resources/CubeMap/cubemap_posx.png", "../Resources/CubeMap/cubemap_negx.png",
 											"../Resources/CubeMap/cubemap_posy.png", "../Resources/CubeMap/cubemap_negy.png",
 											"../Resources/CubeMap/cubemap_posz.png", "../Resources/CubeMap/cubemap_negz.png" 
 										};
 	
-	CubeMapStaticMesh->m_DiffuseTextureID = Engine::ModelHandling::GetModelHandler()->CreateTextureCubeMap(CubeMapTextureFaces, numCubeMapTextureFaces, 4);
+	CubeMapStaticMesh->m_DiffuseTextureID = Engine::ModelHandling::GetModelHandler()->CreateTextureCubeMap(CubeMapTextureFaces, numCubeMapTextureFaces, 4);*/
 
 
 	Engine::Rendering::GetRenderSpotLight().GetGameObject()->SetRotation(
@@ -399,6 +412,21 @@ int main(void)
 	{
 		printf("Error code: %d\n", err);
 	}
+
+	
+/***************** Setup MLAA Area Texture ******************/
+	
+	unsigned int MLAAAreaTextureID = Engine::ModelHandling::GetModelHandler()->CreateTexture2D(Engine::Rendering::MLAAAreaTextureFilename.c_str(), 1);
+	err = glGetError();
+	if (err != 0)
+	{
+		printf("Error code: %d\n", err);
+	}
+	
+/************************************************************/
+	
+	bool BlendingWeightsPass = true;
+	bool NeighborBlendingPass = true;
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -415,9 +443,21 @@ int main(void)
 		Engine::Input::Update(window, dt);
 		Engine::Rendering::Update(window, dt);
 
-		
+/* ****************** Bind Render Texture ****************** */
+		//Bind our own RenderTexture
+		//glActiveTexture(GL_TEXTURE3);
+		SceneRenderTexture->Bind();
+
+		//SceneRenderTexture->BindTexture(3);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
+		glClearColor(0.f, 0.f, 1.f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+/********************* Render CubeMap **********************/
 		//Render CubeMap
-		glDisable(GL_DEPTH_TEST);
+		/*glDisable(GL_DEPTH_TEST);
 		err = glGetError();
 		if (err != 0)
 		{
@@ -425,9 +465,6 @@ int main(void)
 		}
 		cyPoint3f NewPos(-MainSceneCamera->GetGameObject()->GetPosition().x, -MainSceneCamera->GetGameObject()->GetPosition().y, -MainSceneCamera->GetGameObject()->GetPosition().z);
 		CubeMapStaticMesh->GetGameObject()->SetPosition(NewPos);
-		//CubeMapStaticMesh->GetGameObject()->SetPosition(MainSceneCamera->GetGameObject()->GetPosition());
-		//std::cout << "\nCamera: " << MainSceneCamera->GetGameObject()->GetPosition().x << " " << MainSceneCamera->GetGameObject()->GetPosition().y << " " << MainSceneCamera->GetGameObject()->GetPosition().z;
-		//std::cout << "\nCubeMap: " << CubeMapStaticMesh->GetGameObject()->GetPosition().x << " " << CubeMapStaticMesh->GetGameObject()->GetPosition().y << " " << CubeMapStaticMesh->GetGameObject()->GetPosition().z;
 		CubeMapTextureProgram->Bind();
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMapStaticMesh->m_DiffuseTextureID);
@@ -453,23 +490,10 @@ int main(void)
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
-		}
+		}*/
 
 		
-		
-		
-		//Bind our own RenderTexture
-		//glActiveTexture(GL_TEXTURE3);
-		/*SceneRenderTexture->Bind();
-
-		//SceneRenderTexture->BindTexture(3);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
-		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
-		
-		
-		
+/****************** Render Main Scene ********************/
 		//Render the scene to our RenderTexture
 		MainSceneProgram->Bind();
 		err = glGetError();
@@ -536,16 +560,28 @@ int main(void)
 
 		
 		//Unbind our RenderTexture so normal rendering buffers are brought back
-		/*SceneRenderTexture->Unbind();
+		SceneRenderTexture->Unbind();
 		err = glGetError();
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
 		}
 		
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		RenderTextureProgram->Bind();
-		bool ProgramBuilt = !RenderTextureProgram->IsNull();
+
+/********************** Edge Detection *************************/
+		
+		if (BlendingWeightsPass)
+		{
+			EdgesTexture->Bind();
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, EdgesTexture->GetTextureID());
+			glClearColor(0.f, 0.f, 0.f, 1.f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
+		
+
+		EdgeDetectionProgram->Bind();
+		bool ProgramBuilt = !EdgeDetectionProgram->IsNull();
 		assert(ProgramBuilt);
 		err = glGetError();
 		if (err != 0)
@@ -553,67 +589,24 @@ int main(void)
 			printf("Error code: %d\n", err);
 		}
 
-		RenderTextureProgram->SetUniformMatrix4("u_PlaneProjection", MainSceneCamera->GetPerspectiveProjection().data);
-		RenderTextureProgram->SetUniformMatrix4("u_PlaneCamera", MainSceneCamera->GetGameObject()->GetTransform().data);
-		RenderTextureProgram->SetUniformMatrix4("u_PlaneObject", PlaneStaticMesh->GetGameObject()->GetTransform().data);
+
+		//Bind the texture that the teapot scene was rendered to as the texture for the plane
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
+		glGenerateMipmap(GL_TEXTURE_2D);
+		EdgeDetectionProgram->SetUniform("u_RenderToSampler", 3);
 		err = glGetError();
 		if (err != 0)
 		{
 			printf("Error code: %d\n", err);
 		}
-
-		//Bind the texture that the teapot scene was rendered to as the texture for the plane
-		//SceneRenderTexture->BindTexture(3);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
-		glGenerateMipmap(GL_TEXTURE_2D);
-		//SceneRenderTexture->BuildTextureMipmaps();
-		RenderTextureProgram->SetUniform("u_RenderToSampler", 3);
-		err = glGetError();
-		if (err != 0)
-		{
-			printf("Error code: %d\n", err);
-		}*/
 		
 
 		//Draw plane on usual rendering buffers
 		
 		
 		//Render the plane
-		MainSceneProgram->SetUniformMatrix4("u_Object", PlaneStaticMesh->GetGameObject()->GetTransform().data);
-		/*glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_2D, PlaneStaticMesh->m_NormalMapID);
-		MainSceneProgram->SetUniform("u_NormalMapSampler", 5);
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, PlaneStaticMesh->m_DisplacementMapID);
-		MainSceneProgram->SetUniform("u_DisplacementMap", 6);
-		MainSceneProgram->SetUniform("u_DisplacementFactor_ModelSpace", PlaneStaticMesh->m_DisplacementFactor);*/
-		if (err != 0)
-		{
-			printf("Error code: %d\n", err);
-		}
-
-		//Set Tessellation uniforms
-		/*MainSceneProgram->SetUniform("TessellationControlLevel", Engine::Input::GetTessellationLevel());
-		if (err != 0)
-		{
-			printf("Error code: %d\n", err);
-		}*/
-
-		//glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
 		glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
-		err = glGetError();
-		if (err != 0)
-		{
-			printf("Error code: %d\n", err);
-		}
-		/*glPatchParameteri(GL_PATCH_VERTICES, Engine::ModelHandling::GetModelHandler()->NumPatchVertices);
-		err = glGetError();
-		if (err != 0)
-		{
-			printf("Error code: %d\n", err);
-		}
-		glDrawArrays(GL_PATCHES, 0, APlaneVertPos.size());*/
 		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
 		err = glGetError();
 		if (err != 0)
@@ -621,8 +614,159 @@ int main(void)
 			printf("Error code: %d\n", err);
 		}
 
+		if (BlendingWeightsPass)
+		{
+			EdgesTexture->Unbind();
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+		}
+		
+
+/********************* Blending Weights Pass ***********************/
+		
+		if (BlendingWeightsPass)
+		{
+			if (NeighborBlendingPass)
+			{
+				BlendingWeightsTexture->Bind();
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, BlendingWeightsTexture->GetTextureID());
+				glClearColor(0.f, 0.f, 0.f, 1.f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				err = glGetError();
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+			}
+
+
+			BlendingWeightsProgram->Bind();
+			ProgramBuilt = !BlendingWeightsProgram->IsNull();
+			assert(ProgramBuilt);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+
+			glClearColor(0.f, 0.f, 0.f, 1.f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			//Bind the Edges Texture
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, EdgesTexture->GetTextureID());
+			glGenerateMipmap(GL_TEXTURE_2D);
+			BlendingWeightsProgram->SetUniform("u_EdgesTexSampler", 3);
+			
+			glActiveTexture(GL_TEXTURE4);
+			glBindTexture(GL_TEXTURE_2D, MLAAAreaTextureID);
+			glGenerateMipmap(GL_TEXTURE_2D);
+			BlendingWeightsProgram->SetUniform("u_AreaTexSampler", 4);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+
+
+			//Draw plane on usual rendering buffers
+
+
+			//Render the plane
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+
+			glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
+			glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+
+			if (NeighborBlendingPass)
+			{
+				BlendingWeightsTexture->Unbind();
+				err = glGetError();
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+			}
+		}
+		
+
+
+/******************** 4-Neighbor Blending Pass **********************/
+
+		if (NeighborBlendingPass)
+		{
+			NeighborhoodBlendingProgram->Bind();
+			ProgramBuilt = !NeighborhoodBlendingProgram->IsNull();
+			assert(ProgramBuilt);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+
+			glClearColor(0.f, 0.f, 0.f, 1.f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			//Bind the Edges Texture
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
+			glGenerateMipmap(GL_TEXTURE_2D);
+			NeighborhoodBlendingProgram->SetUniform("u_ColorTexSampler", 3);
+
+			glActiveTexture(GL_TEXTURE4);
+			glBindTexture(GL_TEXTURE_2D, BlendingWeightsTexture->GetTextureID());
+			glGenerateMipmap(GL_TEXTURE_2D);
+			NeighborhoodBlendingProgram->SetUniform("u_BlendWeightTexSampler", 4);
+
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+
+
+			//Draw plane on usual rendering buffers
+
+
+			//Render the plane
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+
+			glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
+			glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+		}
+		
+
 
 /***********************      *** Debug Draw ***       ***********************************/
+
 		/*if (Engine::Input::IsDebugDrawRequested())
 		{
 			DebugDrawProgram->Bind();

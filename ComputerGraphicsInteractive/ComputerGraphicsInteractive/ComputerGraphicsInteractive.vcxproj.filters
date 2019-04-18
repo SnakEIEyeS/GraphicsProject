@@ -196,5 +196,10 @@
     <None Include="res\QuadTES.shader" />
     <None Include="res\FinalShaders\PrimarySceneVS.shader" />
     <None Include="res\FinalShaders\PrimarySceneFS.shader" />
+    <None Include="res\FinalShaders\RenderToScreenPlaneVS.shader" />
+    <None Include="res\FinalShaders\RenderToScreenPlaneFS.shader" />
+    <None Include="res\FinalShaders\EdgeDetectionFS.shader" />
+    <None Include="res\FinalShaders\BlendingWeightsFS.shader" />
+    <None Include="res\FinalShaders\NeighborhoodBlendingFS.shader" />
   </ItemGroup>
 </Project>

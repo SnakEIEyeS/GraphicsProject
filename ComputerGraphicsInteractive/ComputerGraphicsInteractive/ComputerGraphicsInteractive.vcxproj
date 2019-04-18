@@ -196,8 +196,13 @@
     <None Include="res\DebugDrawVS.shader" />
     <None Include="res\EnvironmentMappingFS.shader" />
     <None Include="res\EnvironmentMappingVS.shader" />
+    <None Include="res\FinalShaders\BlendingWeightsFS.shader" />
+    <None Include="res\FinalShaders\EdgeDetectionFS.shader" />
+    <None Include="res\FinalShaders\NeighborhoodBlendingFS.shader" />
     <None Include="res\FinalShaders\PrimarySceneFS.shader" />
     <None Include="res\FinalShaders\PrimarySceneVS.shader" />
+    <None Include="res\FinalShaders\RenderToScreenPlaneFS.shader" />
+    <None Include="res\FinalShaders\RenderToScreenPlaneVS.shader" />
     <None Include="res\LightsShadingFS.shader" />
     <None Include="res\LightsShadingVS.shader" />
     <None Include="res\NormalMappingFS.shader" />
