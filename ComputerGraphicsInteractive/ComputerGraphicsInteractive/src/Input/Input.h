@@ -49,5 +49,13 @@ namespace Engine
 		void SetupMaxTessellationLevel();
 		float GetTessellationLevel();
 		void UpdateTessellationLevel(float i_DeltaTessLevel);
+
+		//MLAA related
+		bool GetMLAAEnabled();
+		bool GetMLAABlendingWeightsPassEnabled();
+		bool GetMLAANeighborBlendPassEnabled();
+		void HandleMLAAControls(GLFWwindow * window);
+		void ChooseMLAAPass(unsigned int i_MLAAPassNumber);
+
 	} //namespace Input
 } //namespace Engine

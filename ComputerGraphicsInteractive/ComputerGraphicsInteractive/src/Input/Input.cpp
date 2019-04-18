@@ -31,6 +31,15 @@ namespace Engine
 		bool AlreadyDown_LeftArrow = false;
 		bool AlreadyDown_RightArrow = false;
 
+		//MLAA variables
+		bool MLAA_Enabled = true;
+		bool MLAA_BlendingWeightsPass = true;
+		bool MLAA_NeighborBlendingPass = true;
+		bool AlreadyDown_R = false;
+		bool AlreadyDown_1 = false;
+		bool AlreadyDown_2 = false;
+		bool AlreadyDown_3 = false;
+
 		bool Startup()
 		{
 			std::cout << "Input Startup\n";
@@ -120,6 +129,8 @@ namespace Engine
 					AlreadyDown_RightArrow = false;
 				}
 			}
+
+			HandleMLAAControls(window);
 		}
 
 		void CheckMouseState(GLFWwindow * window)
@@ -300,6 +311,134 @@ namespace Engine
 			else if (TessellationLevelCurrent > TessellationLevelMax)
 			{
 				TessellationLevelCurrent = (float)TessellationLevelMax;
+			}
+		}
+
+		bool GetMLAAEnabled()
+		{
+			return MLAA_Enabled;
+		}
+
+		bool GetMLAABlendingWeightsPassEnabled()
+		{
+			return MLAA_BlendingWeightsPass;
+		}
+
+		bool GetMLAANeighborBlendPassEnabled()
+		{
+			return MLAA_NeighborBlendingPass;
+		}
+
+		void HandleMLAAControls(GLFWwindow * window)
+		{
+			/*************************** MLAA Controls *****************************/
+			//MLAA On/Off
+			if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+			{
+				if (!AlreadyDown_R)
+				{
+					AlreadyDown_R = true;
+					//Set MLAA On/Off
+					MLAA_Enabled = !MLAA_Enabled;
+				}
+			}
+			if (glfwGetKey(window, GLFW_KEY_R) == GLFW_RELEASE)
+			{
+				if (AlreadyDown_R)
+				{
+					AlreadyDown_R = false;
+				}
+			}
+
+			//MLAA Passes
+			//Edge Detection Pass
+			if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+			{
+				if (!AlreadyDown_1)
+				{
+					AlreadyDown_1 = true;
+					if (MLAA_Enabled)
+					{
+						ChooseMLAAPass(1);
+					}
+				}
+			}
+			if (glfwGetKey(window, GLFW_KEY_1) == GLFW_RELEASE)
+			{
+				if (AlreadyDown_1)
+				{
+					AlreadyDown_1 = false;
+				}
+			}
+
+			//Blending Weights Pass
+			if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+			{
+				if (!AlreadyDown_2)
+				{
+					AlreadyDown_2 = true;
+					if (MLAA_Enabled)
+					{
+						ChooseMLAAPass(2);
+
+					}
+				}
+			}
+			if (glfwGetKey(window, GLFW_KEY_2) == GLFW_RELEASE)
+			{
+				if (AlreadyDown_2)
+				{
+					AlreadyDown_2 = false;
+				}
+			}
+
+			//Neighbor Blending Pass
+			if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+			{
+				if (!AlreadyDown_3)
+				{
+					AlreadyDown_3 = true;
+					if (MLAA_Enabled)
+					{
+						ChooseMLAAPass(3);
+
+					}
+				}
+			}
+			if (glfwGetKey(window, GLFW_KEY_3) == GLFW_RELEASE)
+			{
+				if (AlreadyDown_3)
+				{
+					AlreadyDown_3 = false;
+				}
+			}
+		}
+
+		void ChooseMLAAPass(unsigned int i_MLAAPassNumber)
+		{
+			switch (i_MLAAPassNumber)
+			{
+			case 1:
+				//Display Edge Detection Pass
+				MLAA_BlendingWeightsPass = false;
+				MLAA_NeighborBlendingPass = false;
+				break;
+
+			case 2:
+				//Display Blending Weights Pass
+				MLAA_BlendingWeightsPass = true;
+				MLAA_NeighborBlendingPass = false;
+				break;
+
+			case 3:
+				//Display Neighbor Blending Pass
+				MLAA_BlendingWeightsPass = true;
+				MLAA_NeighborBlendingPass = true;
+				break;
+
+			default:
+				std::cout << "Received invalid MLAA Pass number\n";
+				break;
 			}
 		}
 
