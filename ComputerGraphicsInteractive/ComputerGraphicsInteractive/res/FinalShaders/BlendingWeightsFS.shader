@@ -1,10 +1,14 @@
-#version 330 core
+#version 410 core
 
 layout(location = 0) out vec4 o_ColorFS;
 
 uniform sampler2D u_EdgesTexSampler;
 uniform sampler2D u_AreaTexSampler;
 
+/*Change to uniform*/
+const int u_TextureWidth = 800;
+const int u_TextureHeight = 600;
+const float TexelSize = 1.f / (u_TextureWidth * u_TextureHeight);
 
 in vec3 o_VertexTexture;
 
@@ -30,7 +34,7 @@ void main()
 	vec4 FinalDiffuseColor = sampledDiffuseColor;
 
 	o_ColorFS = sampledDiffuseColor;*/
-
+	
 	vec4 BlendingWeights = vec4(0.f, 0.f, 0.f, 0.f);
 	vec2 FragEdgeData = texture(u_EdgesTexSampler, vec2(o_VertexTexture)).rg;
 
@@ -38,12 +42,24 @@ void main()
 	{
 		float DistanceToEdgeLeft = SearchXLeft(vec2(o_VertexTexture));
 		float DistanceToEdgeRight = SearchXRight(vec2(o_VertexTexture));
-		vec2 EdgeCoordsLeft = vec2(o_VertexTexture) + vec2(DistanceToEdgeLeft, -0.25f);
-		vec2 EdgeCoordsRight = vec2(o_VertexTexture) + vec2(DistanceToEdgeRight + 1.f, -0.25f);
+		vec2 EdgeCoordsLeft = vec2(o_VertexTexture) + vec2(DistanceToEdgeLeft, -0.25f * TexelSize);
+		vec2 EdgeCoordsRight = vec2(o_VertexTexture) + vec2(DistanceToEdgeRight + 1.f * TexelSize, -0.25f * TexelSize);
 
-		float EdgeLeftData = texture(u_EdgesTexSampler, EdgeCoordsLeft).r;
-		float EdgeRightData = texture(u_EdgesTexSampler, EdgeCoordsRight).r;
+		vec4 EdgeLeftGatherRed = textureGather(u_EdgesTexSampler, EdgeCoordsLeft, 0);
+		float EdgeLeftData = (EdgeLeftGatherRed.x + EdgeLeftGatherRed.y + EdgeLeftGatherRed.z + EdgeLeftGatherRed.w) / 4.f;
+		//float EdgeLeftData = texture(u_EdgesTexSampler, EdgeCoordsLeft).r;
 
+		vec4 EdgeRightGatherRed = textureGather(u_EdgesTexSampler, EdgeCoordsRight, 0);
+		float EdgeRightData = (EdgeRightGatherRed.x + EdgeRightGatherRed.y + EdgeRightGatherRed.z + EdgeRightGatherRed.w) / 4.f;
+		//float EdgeRightData = texture(u_EdgesTexSampler, EdgeCoordsRight).r;
+
+		/*BlendingWeights.x = EdgeLeftData;
+		BlendingWeights.y = EdgeRightData;
+		BlendingWeights.x = 1.f;
+		BlendingWeights.y = 1.f;
+		//BlendingWeights.x = (EdgeLeftData + EdgeRightData) / 2.f;
+		//BlendingWeights.x = 1/DistanceToEdgeLeft;
+		//BlendingWeights.y = 1/DistanceToEdgeRight;*/
 		vec2 SampledArea = CalculateArea(vec2(abs(DistanceToEdgeLeft), abs(DistanceToEdgeRight)), EdgeLeftData, EdgeRightData);
 		BlendingWeights.x = SampledArea.x;
 		BlendingWeights.y = SampledArea.y;
@@ -53,12 +69,23 @@ void main()
 	{
 		float DistanceToEdgeUp = SearchYUp(vec2(o_VertexTexture));
 		float DistanceToEdgeDown = SearchYDown(vec2(o_VertexTexture));
-		vec2 EdgeCoordsUp = vec2(o_VertexTexture) + vec2(-0.25f, DistanceToEdgeUp);
-		vec2 EdgeCoordsDown = vec2(o_VertexTexture) + vec2(-0.25f, DistanceToEdgeDown + 1.f);
+		vec2 EdgeCoordsUp = vec2(o_VertexTexture) + vec2(-0.25f * TexelSize, DistanceToEdgeUp);
+		vec2 EdgeCoordsDown = vec2(o_VertexTexture) + vec2(-0.25f * TexelSize, DistanceToEdgeDown + 1.f * TexelSize);
 
-		float EdgeUpData = texture(u_EdgesTexSampler, EdgeCoordsUp).g;
-		float EdgeDownData = texture(u_EdgesTexSampler, EdgeCoordsDown).g;
+		vec4 EdgeUpGatherGreen = textureGather(u_EdgesTexSampler, EdgeCoordsUp, 1);
+		float EdgeUpData = (EdgeUpGatherGreen.x + EdgeUpGatherGreen.y + EdgeUpGatherGreen.z + EdgeUpGatherGreen.w) / 4.f;
+		//float EdgeUpData = texture(u_EdgesTexSampler, EdgeCoordsUp).g;
 
+		vec4 EdgeDownGatherGreen = textureGather(u_EdgesTexSampler, EdgeCoordsDown, 1);
+		float EdgeDownData = (EdgeDownGatherGreen.x + EdgeDownGatherGreen.y + EdgeDownGatherGreen.z + EdgeDownGatherGreen.w) / 4.f;
+		//float EdgeDownData = texture(u_EdgesTexSampler, EdgeCoordsDown).g;
+		
+		
+		/*BlendingWeights.z = EdgeUpData;
+		BlendingWeights.w = EdgeDownData;
+		BlendingWeights.z = 1.f;
+		BlendingWeights.w = 1.f;
+		//BlendingWeights.y = (EdgeUpData + EdgeDownData) / 2.f;*/
 		vec2 SampledArea = CalculateArea(vec2(abs(DistanceToEdgeUp), abs(DistanceToEdgeDown)), EdgeUpData, EdgeDownData);
 		BlendingWeights.z = SampledArea.x;
 		BlendingWeights.w = SampledArea.y;
