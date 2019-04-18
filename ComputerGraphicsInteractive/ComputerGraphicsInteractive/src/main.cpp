@@ -426,7 +426,7 @@ int main(void)
 /************************************************************/
 	
 	bool BlendingWeightsPass = true;
-	bool NeighborBlendingPass = false;
+	bool NeighborBlendingPass = true;
 
 	glEnable(GL_DEPTH_TEST);
 

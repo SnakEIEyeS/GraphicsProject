@@ -1,10 +1,14 @@
-#version 330 core
+#version 410 core
 
 layout(location = 0) out vec4 o_ColorFS;
 
 uniform sampler2D u_ColorTexSampler;
 uniform sampler2D u_BlendWeightTexSampler;
 
+/*Change to uniform*/
+const int u_TextureWidth = 800;
+const int u_TextureHeight = 600;
+const vec2 TexelSizeXY = vec2(1.f / u_TextureWidth, 1.f / u_TextureHeight);
 
 in vec3 o_VertexTexture;
 
@@ -32,16 +36,23 @@ void main()
 	if (SumBlendValues > 0.f)
 	{
 		o_ColorFS = vec4(0.f, 0.f, 0.f, 0.f);
+		vec4 ColorOffset = FourNeighborSampledArea * vec4(TexelSizeXY.y, TexelSizeXY.y, TexelSizeXY.x, TexelSizeXY.x);
 		//Add Top color
-		o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(0.f, FourNeighborSampledArea.x)) * WeightedFourNeighborBlendValues.x;
+		//o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(0.f, FourNeighborSampledArea.x)) * WeightedFourNeighborBlendValues.x;
+		o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(0.f, ColorOffset.x)) * WeightedFourNeighborBlendValues.x;
 		//Add Bottom color
-		o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(0.f, -FourNeighborSampledArea.y)) * WeightedFourNeighborBlendValues.y;
+		//o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(0.f, -FourNeighborSampledArea.y)) * WeightedFourNeighborBlendValues.y;
+		o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(0.f, -ColorOffset.y)) * WeightedFourNeighborBlendValues.y;
 		//Add Left color
-		o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(-FourNeighborSampledArea.z, 0.f)) * WeightedFourNeighborBlendValues.z;
+		//o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(-FourNeighborSampledArea.z, 0.f)) * WeightedFourNeighborBlendValues.z;
+		o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(-ColorOffset.z, 0.f)) * WeightedFourNeighborBlendValues.z;
 		//Add Right color
-		o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(FourNeighborSampledArea.w, 0.f)) * WeightedFourNeighborBlendValues.w;
+		//o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(FourNeighborSampledArea.w, 0.f)) * WeightedFourNeighborBlendValues.w;
+		o_ColorFS += texture(u_ColorTexSampler, vec2(o_VertexTexture) + vec2(ColorOffset.w, 0.f)) * WeightedFourNeighborBlendValues.w;
 
 		o_ColorFS /= SumBlendValues;
+
+		//o_ColorFS = vec4(1.f, 0.f, 0.f, 1.f);
 	}
 	else
 	{
