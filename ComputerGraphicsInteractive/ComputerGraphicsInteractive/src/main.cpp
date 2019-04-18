@@ -424,9 +424,6 @@ int main(void)
 	}
 	
 /************************************************************/
-	
-	bool BlendingWeightsPass = true;
-	bool NeighborBlendingPass = true;
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -567,85 +564,24 @@ int main(void)
 			printf("Error code: %d\n", err);
 		}
 		
-
-/********************** Edge Detection *************************/
-		
-		if (BlendingWeightsPass)
+/**************************** MLAA Enabled *****************************/
+		if (Engine::Input::GetMLAAEnabled())
 		{
-			EdgesTexture->Bind();
-			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_2D, EdgesTexture->GetTextureID());
-			glClearColor(0.f, 0.f, 0.f, 1.f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		}
-		
+	
+	/********************** Edge Detection *************************/
 
-		EdgeDetectionProgram->Bind();
-		bool ProgramBuilt = !EdgeDetectionProgram->IsNull();
-		assert(ProgramBuilt);
-		err = glGetError();
-		if (err != 0)
-		{
-			printf("Error code: %d\n", err);
-		}
-
-
-		//Bind the texture that the teapot scene was rendered to as the texture for the plane
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
-		glGenerateMipmap(GL_TEXTURE_2D);
-		EdgeDetectionProgram->SetUniform("u_RenderToSampler", 3);
-		err = glGetError();
-		if (err != 0)
-		{
-			printf("Error code: %d\n", err);
-		}
-		
-
-		//Draw plane on usual rendering buffers
-		
-		
-		//Render the plane
-		glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
-		glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
-		err = glGetError();
-		if (err != 0)
-		{
-			printf("Error code: %d\n", err);
-		}
-
-		if (BlendingWeightsPass)
-		{
-			EdgesTexture->Unbind();
-			err = glGetError();
-			if (err != 0)
+			if (Engine::Input::GetMLAABlendingWeightsPassEnabled())
 			{
-				printf("Error code: %d\n", err);
-			}
-		}
-		
-
-/********************* Blending Weights Pass ***********************/
-		
-		if (BlendingWeightsPass)
-		{
-			if (NeighborBlendingPass)
-			{
-				BlendingWeightsTexture->Bind();
-				glActiveTexture(GL_TEXTURE2);
-				glBindTexture(GL_TEXTURE_2D, BlendingWeightsTexture->GetTextureID());
+				EdgesTexture->Bind();
+				glActiveTexture(GL_TEXTURE3);
+				glBindTexture(GL_TEXTURE_2D, EdgesTexture->GetTextureID());
 				glClearColor(0.f, 0.f, 0.f, 1.f);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				err = glGetError();
-				if (err != 0)
-				{
-					printf("Error code: %d\n", err);
-				}
 			}
 
 
-			BlendingWeightsProgram->Bind();
-			ProgramBuilt = !BlendingWeightsProgram->IsNull();
+			EdgeDetectionProgram->Bind();
+			bool ProgramBuilt = !EdgeDetectionProgram->IsNull();
 			assert(ProgramBuilt);
 			err = glGetError();
 			if (err != 0)
@@ -653,86 +589,201 @@ int main(void)
 				printf("Error code: %d\n", err);
 			}
 
-			glClearColor(0.f, 0.f, 0.f, 1.f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			//Bind the Edges Texture
-			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_2D, EdgesTexture->GetTextureID());
-			glGenerateMipmap(GL_TEXTURE_2D);
-			BlendingWeightsProgram->SetUniform("u_EdgesTexSampler", 3);
-			
-			glActiveTexture(GL_TEXTURE4);
-			glBindTexture(GL_TEXTURE_2D, MLAAAreaTextureID);
-			glGenerateMipmap(GL_TEXTURE_2D);
-			BlendingWeightsProgram->SetUniform("u_AreaTexSampler", 4);
-			err = glGetError();
-			if (err != 0)
-			{
-				printf("Error code: %d\n", err);
-			}
-			if (err != 0)
-			{
-				printf("Error code: %d\n", err);
-			}
-
-
-			//Draw plane on usual rendering buffers
-
-
-			//Render the plane
-			if (err != 0)
-			{
-				printf("Error code: %d\n", err);
-			}
-
-			glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
-			glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
-			err = glGetError();
-			if (err != 0)
-			{
-				printf("Error code: %d\n", err);
-			}
-
-			if (NeighborBlendingPass)
-			{
-				BlendingWeightsTexture->Unbind();
-				err = glGetError();
-				if (err != 0)
-				{
-					printf("Error code: %d\n", err);
-				}
-			}
-		}
-		
-
-
-/******************** 4-Neighbor Blending Pass **********************/
-
-		if (NeighborBlendingPass)
-		{
-			NeighborhoodBlendingProgram->Bind();
-			ProgramBuilt = !NeighborhoodBlendingProgram->IsNull();
-			assert(ProgramBuilt);
-			err = glGetError();
-			if (err != 0)
-			{
-				printf("Error code: %d\n", err);
-			}
-
-			glClearColor(0.f, 0.f, 0.f, 1.f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			//Bind the Edges Texture
+			//Bind the texture that the teapot scene was rendered to as the texture for the plane
 			glActiveTexture(GL_TEXTURE3);
 			glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
 			glGenerateMipmap(GL_TEXTURE_2D);
-			NeighborhoodBlendingProgram->SetUniform("u_ColorTexSampler", 3);
+			EdgeDetectionProgram->SetUniform("u_RenderToSampler", 3);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
 
-			glActiveTexture(GL_TEXTURE4);
-			glBindTexture(GL_TEXTURE_2D, BlendingWeightsTexture->GetTextureID());
+
+			//Draw plane on usual rendering buffers
+
+
+			//Render the plane
+			glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
+			glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+
+			if (Engine::Input::GetMLAABlendingWeightsPassEnabled())
+			{
+				EdgesTexture->Unbind();
+				err = glGetError();
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+			}//end Edge Detection Pass
+
+
+	/********************* Blending Weights Pass ***********************/
+
+			if (Engine::Input::GetMLAABlendingWeightsPassEnabled())
+			{
+				if (Engine::Input::GetMLAANeighborBlendPassEnabled())
+				{
+					BlendingWeightsTexture->Bind();
+					glActiveTexture(GL_TEXTURE2);
+					glBindTexture(GL_TEXTURE_2D, BlendingWeightsTexture->GetTextureID());
+					glClearColor(0.f, 0.f, 0.f, 1.f);
+					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					err = glGetError();
+					if (err != 0)
+					{
+						printf("Error code: %d\n", err);
+					}
+				}
+
+
+				BlendingWeightsProgram->Bind();
+				ProgramBuilt = !BlendingWeightsProgram->IsNull();
+				assert(ProgramBuilt);
+				err = glGetError();
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+
+				glClearColor(0.f, 0.f, 0.f, 1.f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				//Bind the Edges Texture
+				glActiveTexture(GL_TEXTURE3);
+				glBindTexture(GL_TEXTURE_2D, EdgesTexture->GetTextureID());
+				glGenerateMipmap(GL_TEXTURE_2D);
+				BlendingWeightsProgram->SetUniform("u_EdgesTexSampler", 3);
+
+				glActiveTexture(GL_TEXTURE4);
+				glBindTexture(GL_TEXTURE_2D, MLAAAreaTextureID);
+				glGenerateMipmap(GL_TEXTURE_2D);
+				BlendingWeightsProgram->SetUniform("u_AreaTexSampler", 4);
+				err = glGetError();
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+
+
+				//Draw plane on usual rendering buffers
+
+
+				//Render the plane
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+
+				glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
+				glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
+				err = glGetError();
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+
+				if (Engine::Input::GetMLAANeighborBlendPassEnabled())
+				{
+					BlendingWeightsTexture->Unbind();
+					err = glGetError();
+					if (err != 0)
+					{
+						printf("Error code: %d\n", err);
+					}
+				}
+			}//end Blending Weights Pass
+
+
+
+	/******************** 4-Neighbor Blending Pass **********************/
+
+			if (Engine::Input::GetMLAANeighborBlendPassEnabled())
+			{
+				NeighborhoodBlendingProgram->Bind();
+				ProgramBuilt = !NeighborhoodBlendingProgram->IsNull();
+				assert(ProgramBuilt);
+				err = glGetError();
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+
+				glClearColor(0.f, 0.f, 0.f, 1.f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				//Bind the Edges Texture
+				glActiveTexture(GL_TEXTURE3);
+				glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
+				glGenerateMipmap(GL_TEXTURE_2D);
+				NeighborhoodBlendingProgram->SetUniform("u_ColorTexSampler", 3);
+
+				glActiveTexture(GL_TEXTURE4);
+				glBindTexture(GL_TEXTURE_2D, BlendingWeightsTexture->GetTextureID());
+				glGenerateMipmap(GL_TEXTURE_2D);
+				NeighborhoodBlendingProgram->SetUniform("u_BlendWeightTexSampler", 4);
+
+				err = glGetError();
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+
+
+				//Draw plane on usual rendering buffers
+
+
+				//Render the plane
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+
+				glBindVertexArray(PlaneStaticMesh->GetVertexArrayID());
+				glDrawArrays(GL_TRIANGLES, 0, APlaneVertPos.size());
+				err = glGetError();
+				if (err != 0)
+				{
+					printf("Error code: %d\n", err);
+				}
+			}//end Neighbor Blend Pass
+		} //end MLAA Enabled
+
+
+/************************ MLAA Disabled ************************/
+		else
+		{
+			RenderTextureProgram->Bind();
+			bool ProgramBuilt = !RenderTextureProgram->IsNull();
+			assert(ProgramBuilt);
+			err = glGetError();
+			if (err != 0)
+			{
+				printf("Error code: %d\n", err);
+			}
+
+			glClearColor(0.f, 0.f, 0.f, 1.f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, SceneRenderTexture->GetTextureID());
 			glGenerateMipmap(GL_TEXTURE_2D);
-			NeighborhoodBlendingProgram->SetUniform("u_BlendWeightTexSampler", 4);
+			RenderTextureProgram->SetUniform("u_RenderToSampler", 3);
 
 			err = glGetError();
 			if (err != 0)
@@ -743,9 +794,6 @@ int main(void)
 			{
 				printf("Error code: %d\n", err);
 			}
-
-
-			//Draw plane on usual rendering buffers
 
 
 			//Render the plane
@@ -762,6 +810,7 @@ int main(void)
 				printf("Error code: %d\n", err);
 			}
 		}
+
 		
 
 
