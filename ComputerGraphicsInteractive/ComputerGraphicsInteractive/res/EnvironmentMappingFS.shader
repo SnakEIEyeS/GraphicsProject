@@ -28,6 +28,6 @@ void main()
 	vec4 sampledSpecularColor = texture(u_SpecularTextureSampler, vec2(o_VertexTexture));
 	vec4 FinalSpecularColor = vec4(vec3(sampledSpecularColor) * pow(o_SpecularComponent, u_SpecularExponent), 1.f);
 	
-	//o_ColorFS = ReflectionColor + FinalSpecularColor;
-	o_ColorFS = ReflectionColor;
+	o_ColorFS = mix(ReflectionColor, FinalSpecularColor, 0.2f);
+	//o_ColorFS = ReflectionColor;
 }
