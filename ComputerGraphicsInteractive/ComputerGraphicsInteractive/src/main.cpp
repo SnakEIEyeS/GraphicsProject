@@ -370,7 +370,7 @@ int main(void)
 
 /************************* Create CubeMap ***************************/
 	//CubeMap
-	unsigned int cubeMapVertexArrayID;
+	/*unsigned int cubeMapVertexArrayID;
 	glGenVertexArrays(1, &cubeMapVertexArrayID);
 	glBindVertexArray(cubeMapVertexArrayID);
 
@@ -422,8 +422,41 @@ int main(void)
 	{
 		printf("Error code: %d\n", err);
 	}
+
+
+/***************** Setup MLAA On/Off Indicator ******************/
+
+	Engine::Entity::StaticMesh* MLAAIndicatorPlaneStaticMesh = new Engine::Entity::StaticMesh(new Engine::Entity::GameObject());
+	const_cast<Engine::Entity::GameObject*>(MLAAIndicatorPlaneStaticMesh->GetGameObject())->SetPosition(cyPoint3f(0.f, 0.f, 0.f));
+	const_cast<Engine::Entity::GameObject*>(MLAAIndicatorPlaneStaticMesh->GetGameObject())->SetRotation(cyPoint3f(0.f, 0.f, 0.f));
+
+	float MLAAIndicatorLeftExtent = -0.9f;
+	float MLAAIndicatorRightExtent = -0.8f;
+	float MLAAIndicatorBottomExtent = 0.8f;
+	float MLAAIndicatorTopExtent = 0.9f;
+
+	Engine::ModelHandling::GetModelHandler()->CreateXYPlaneClipSpaceTris(MLAAIndicatorPlaneStaticMesh, MLAAIndicatorLeftExtent, MLAAIndicatorRightExtent, MLAAIndicatorBottomExtent, MLAAIndicatorTopExtent);
+
+	unsigned int MLAAOnIndicatorTextureID = Engine::ModelHandling::GetModelHandler()->CreateTexture2D(Engine::Rendering::MLAAOnIndicatorTextureFilename, 1);
+	err = glGetError();
+	if (err != 0)
+	{
+		printf("Error code: %d\n", err);
+	}
+
+	unsigned int MLAAOffIndicatorTextureID = Engine::ModelHandling::GetModelHandler()->CreateTexture2D(Engine::Rendering::MLAAOffIndicatorTextureFilename, 1);
+	err = glGetError();
+	if (err != 0)
+	{
+		printf("Error code: %d\n", err);
+	}
 	
-/************************************************************/
+
+
+
+/************************************************************************************************************************************************************/
+/************************************************************************************************************************************************************/
+/************************************************************************************************************************************************************/
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -514,9 +547,6 @@ int main(void)
 		
 		MainSceneProgram->SetUniform("u_LightPosition", SpotLightPos3);
 		MainSceneProgram->SetUniform("u_CameraPosition", MainSceneCamera->GetGameObject()->GetPosition());
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMapStaticMesh->m_DiffuseTextureID);
-		MainSceneProgram->SetUniform("u_CubeMapSampler", 4);
 		MainSceneProgram->SetUniform("u_AmbientConstant", Engine::Rendering::AmbientConstant);
 		/*MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::MaterialSpecularExponent);*/
 		MainSceneProgram->SetUniform("u_SpecularExponent", Engine::Rendering::SpecularAlpha);
@@ -811,7 +841,53 @@ int main(void)
 			}
 		}
 
-		
+
+	/************************ Draw MLAA On/Off Indicator ************************/
+
+	glDisable(GL_DEPTH_TEST);
+
+	RenderTextureProgram->Bind();
+	bool ProgramBuilt = !RenderTextureProgram->IsNull();
+	assert(ProgramBuilt);
+	err = glGetError();
+	if (err != 0)
+	{
+		printf("Error code: %d\n", err);
+	}
+
+	if (Engine::Input::GetMLAAEnabled())
+	{
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, MLAAOnIndicatorTextureID);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		RenderTextureProgram->SetUniform("u_RenderToSampler", 3);
+	}
+	else
+	{
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, MLAAOffIndicatorTextureID);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		RenderTextureProgram->SetUniform("u_RenderToSampler", 3);
+	}
+	
+
+	err = glGetError();
+	if (err != 0)
+	{
+		printf("Error code: %d\n", err);
+	}
+
+
+	//Render the Indicator Plane
+	glBindVertexArray(MLAAIndicatorPlaneStaticMesh->GetVertexArrayID());
+	glDrawArrays(GL_TRIANGLES, 0, MLAAIndicatorPlaneStaticMesh->m_NumVertexPositions);
+	err = glGetError();
+	if (err != 0)
+	{
+		printf("Error code: %d\n", err);
+	}
+
+	glEnable(GL_DEPTH_TEST);
 
 
 /***********************      *** Debug Draw ***       ***********************************/

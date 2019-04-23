@@ -28,7 +28,7 @@ namespace Engine
 			//TODO Think about what you actually need to store in StaticMesh
 			std::vector<cy::Point3f>* m_pAVertexPositionsToDraw, m_pAVertexNormalsToDraw, m_pAVertexUVsToDraw;
 			float m_DisplacementFactor = 10.f;
-			unsigned int m_AmbientTextureID, m_DiffuseTextureID, m_SpecularTextureID, m_NormalMapID, m_DisplacementMapID;
+			unsigned int m_NumVertexPositions, m_AmbientTextureID, m_DiffuseTextureID, m_SpecularTextureID, m_NormalMapID, m_DisplacementMapID;
 
 		private:
 			GameObject* m_pGameObject;

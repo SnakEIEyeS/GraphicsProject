@@ -53,13 +53,6 @@ void main()
 		float EdgeRightData = (EdgeRightGatherRed.x + EdgeRightGatherRed.y + EdgeRightGatherRed.z + EdgeRightGatherRed.w) / 4.f;
 		//float EdgeRightData = texture(u_EdgesTexSampler, EdgeCoordsRight).r;
 
-		/*BlendingWeights.x = EdgeLeftData;
-		BlendingWeights.y = EdgeRightData;
-		BlendingWeights.x = 1.f;
-		BlendingWeights.y = 1.f;
-		//BlendingWeights.x = (EdgeLeftData + EdgeRightData) / 2.f;
-		//BlendingWeights.x = 1/DistanceToEdgeLeft;
-		//BlendingWeights.y = 1/DistanceToEdgeRight;*/
 		vec2 SampledArea = CalculateArea(vec2(abs(DistanceToEdgeLeft), abs(DistanceToEdgeRight)), EdgeLeftData, EdgeRightData);
 		BlendingWeights.x = SampledArea.x;
 		BlendingWeights.y = SampledArea.y;
@@ -81,11 +74,6 @@ void main()
 		//float EdgeDownData = texture(u_EdgesTexSampler, EdgeCoordsDown).g;
 		
 		
-		/*BlendingWeights.z = EdgeUpData;
-		BlendingWeights.w = EdgeDownData;
-		BlendingWeights.z = 1.f;
-		BlendingWeights.w = 1.f;
-		//BlendingWeights.y = (EdgeUpData + EdgeDownData) / 2.f;*/
 		vec2 SampledArea = CalculateArea(vec2(abs(DistanceToEdgeUp), abs(DistanceToEdgeDown)), EdgeUpData, EdgeDownData);
 		BlendingWeights.z = SampledArea.x;
 		BlendingWeights.w = SampledArea.y;
@@ -188,13 +176,13 @@ float SearchYDown(vec2 i_VertexTexture)
 
 vec2 CalculateArea(vec2 i_DistanceToEdges, float i_CrossEdgeVal1, float i_CrossEdgeVal2)
 {
-	vec2 pixCoord = NumDistances * round(4.f * vec2(i_CrossEdgeVal1, i_CrossEdgeVal2)) + i_DistanceToEdges;
+	vec2 PixCoord = NumDistances * round(4.f * vec2(i_CrossEdgeVal1, i_CrossEdgeVal2)) + i_DistanceToEdges;
 
-	vec2 texCoord = pixCoord / (AreaSize - 1.f);
+	vec2 TexCoord = PixCoord / (AreaSize - 1.f);
 
-	vec2 sampledArea = texture(u_AreaTexSampler, texCoord).rg;
+	vec2 SampledArea = texture(u_AreaTexSampler, TexCoord).rg;
 
-	return sampledArea;
+	return SampledArea;
 }
 
 

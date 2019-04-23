@@ -2,7 +2,6 @@
 
 layout(location = 0) out vec4 o_ColorFS;
 
-uniform samplerCube u_CubeMapSampler;
 //uniform sampler2D u_NormalMapSampler;
 uniform sampler2D u_DiffuseTextureSampler;
 uniform sampler2D u_SpecularTextureSampler;
@@ -38,11 +37,6 @@ void main()
 	vec4 HalfVector = normalize(vec4(vec3(ViewDirection_CameraSpace + LightDirection_CameraSpace), 0.f));
 	float SpecularComponent = dot(HalfVector, VertexNormal_CameraSpace);
 
-
-	/*vec3 ViewDirection = normalize(u_CameraPosition - vec3(o_VertexPositionToFS_ModelSpace));
-	//vec4 ViewDirection_CameraSpace = -normalize(u_Camera * u_Object * o_VertexPositionToFS_ModelSpace);
-	vec3 ReflectionVector = vec3(ViewDirection) + 2.f * dot(vec3(ViewDirection), Normal) * Normal;
-	vec4 ReflectionColor = vec4(texture(u_CubeMapSampler, -ReflectionVector).rgb, 1.f);*/
 
 	vec4 sampledDiffuseColor = texture(u_DiffuseTextureSampler, vec2(o_VertexTextureToFS_ModelSpace));
 	vec4 FinalDiffuseColor = vec4(vec3(sampledDiffuseColor) * cosTheta, 1.f);
