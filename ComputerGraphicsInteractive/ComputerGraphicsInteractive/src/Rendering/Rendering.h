@@ -49,6 +49,9 @@ namespace Engine
 		static const char* DebugDrawGeometryShaderFile = "res/DebugDrawGS.shader"; 
 		static const char* DebugDrawFragmentShaderFile = "res/DebugDrawFS.shader";
 
+		static const char* MLAAOnIndicatorTextureFilename = "../Resources/MLAA/MLAA_On_Indicator.png";
+		static const char* MLAAOffIndicatorTextureFilename = "../Resources/MLAA/MLAA_Off_Indicator.png";
+
 		const std::string MLAAAreaTextureFilename = "../Resources/MLAA/AreaMap33.png";
 		
 		

@@ -8,6 +8,8 @@
 #include "../cyCodeBase/cyPoint.h"
 #include "../cyCodeBase/cyTriMesh.h"
 #include "../Rendering/Rendering.h"
+#include "../StaticMesh/StaticMesh.h"
+
 
 namespace Engine
 {
@@ -396,6 +398,87 @@ namespace Engine
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 			return CreatedCubeMapTextureID;
+		}
+
+		void ModelHandler::CreateXYPlaneClipSpaceTris(Engine::Entity::StaticMesh* i_pPlaneStaticMesh, float i_LeftExtent, float i_RightExtent, float i_BottomExtent, float i_TopExtent)
+		{
+			//Plane VAO
+			unsigned int PlaneVertexArrayID;
+			glGenVertexArrays(1, &PlaneVertexArrayID);
+			glBindVertexArray(PlaneVertexArrayID);
+			i_pPlaneStaticMesh->SetVertexArrayID(PlaneVertexArrayID);
+
+			//Plane VertexPositions
+			std::vector<cyPoint3f> APlaneVertPos;
+			APlaneVertPos.reserve(6);
+
+			cyPoint3f PlaneTopLeft(i_LeftExtent, i_TopExtent, 0.f);
+			cyPoint3f PlaneTopRight(i_RightExtent, i_TopExtent, 0.f);
+			cyPoint3f PlaneBottomRight(i_RightExtent, i_BottomExtent, 0.f);
+			cyPoint3f PlaneBottomLeft(i_LeftExtent, i_BottomExtent, 0.f);
+
+			APlaneVertPos.push_back(PlaneTopLeft);
+			APlaneVertPos.push_back(PlaneBottomLeft);
+			APlaneVertPos.push_back(PlaneBottomRight);
+			APlaneVertPos.push_back(PlaneBottomRight);
+			APlaneVertPos.push_back(PlaneTopRight);
+			APlaneVertPos.push_back(PlaneTopLeft);
+
+			unsigned int planeVertexPosBufferID;
+			glGenBuffers(1, &planeVertexPosBufferID);
+			glBindBuffer(GL_ARRAY_BUFFER, planeVertexPosBufferID);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertPos[0]) * APlaneVertPos.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertPos[0])), GL_STATIC_DRAW);
+
+			glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexPosition);
+			glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexPosition, 3, GL_FLOAT, GL_FALSE, sizeof(APlaneVertPos[0]), (const void*)0);
+
+			i_pPlaneStaticMesh->m_NumVertexPositions = APlaneVertPos.size();
+
+			//Plane VertNormals
+			std::vector<cyPoint3f> APlaneVertNormals;
+			APlaneVertNormals.reserve(6);
+			cyPoint3f UpVector(0.f, 0.f, 1.f);
+			const unsigned int PlaneVertices = 6;
+			for (int i = 0; i < PlaneVertices; i++)
+			{
+				APlaneVertNormals.push_back(UpVector);
+			}
+
+			unsigned int planeVertexNormalBufferID;
+			glGenBuffers(1, &planeVertexNormalBufferID);
+			glBindBuffer(GL_ARRAY_BUFFER, planeVertexNormalBufferID);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertNormals[0]) * APlaneVertNormals.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertNormals[0])), GL_STATIC_DRAW);
+			glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexNormal);
+			glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexNormal, sizeof(APlaneVertNormals[0]) / sizeof(APlaneVertNormals[0].x), GL_FLOAT, GL_FALSE, sizeof(APlaneVertNormals[0]), (const void*)0);
+
+			//Plane TextureCoordinates
+			std::vector<cyPoint3f> APlaneVertTextures;
+			APlaneVertTextures.reserve(6);
+
+			cyPoint3f PlaneUVTopLeft(0.f, 0.f, 0.f);
+			cyPoint3f PlaneUVTopRight(1.f, 0.f, 0.f);
+			cyPoint3f PlaneUVBottomRight(1.f, 1.f, 0.f);
+			cyPoint3f PlaneUVBottomLeft(0.f, 1.f, 0.f);
+
+			APlaneVertTextures.push_back(PlaneUVTopLeft);
+			APlaneVertTextures.push_back(PlaneUVBottomLeft);
+			APlaneVertTextures.push_back(PlaneUVBottomRight);
+			APlaneVertTextures.push_back(PlaneUVBottomRight);
+			APlaneVertTextures.push_back(PlaneUVTopRight);
+			APlaneVertTextures.push_back(PlaneUVTopLeft);
+
+			unsigned int planeVertexTextureBufferID;
+			glGenBuffers(1, &planeVertexTextureBufferID);
+			glBindBuffer(GL_ARRAY_BUFFER, planeVertexTextureBufferID);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(APlaneVertTextures[0])*APlaneVertTextures.size(), const_cast<void*>(reinterpret_cast<void*>(&APlaneVertTextures[0])), GL_STATIC_DRAW);
+			glEnableVertexAttribArray(Engine::ModelHandling::VertexInfo::VertexTexture);
+			glVertexAttribPointer(Engine::ModelHandling::VertexInfo::VertexTexture, sizeof(APlaneVertTextures[0]) / sizeof(APlaneVertTextures[0].x), GL_FLOAT, GL_FALSE, sizeof(APlaneVertTextures[0]), (const void*)0);
+
+			unsigned int PlaneTangentsBufferID;
+			unsigned int PlaneBitangentsBufferID;
+			Engine::ModelHandling::GetModelHandler()->CalculatePlaneTriTangentsBitangents(APlaneVertPos, APlaneVertTextures, i_pPlaneStaticMesh->GetVertexArrayID(), PlaneTangentsBufferID, PlaneBitangentsBufferID);
+			//Engine::ModelHandling::GetModelHandler()->CalculatePlaneQuadTangentsBitangents(APlaneVertPos, APlaneVertTextures, planeVertexArrayID, PlaneTangentsBufferID, PlaneBitangentsBufferID);
+
 		}
 
 

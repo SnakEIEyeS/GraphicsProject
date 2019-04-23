@@ -13,6 +13,11 @@ namespace cy
 
 namespace Engine
 {
+	namespace Entity
+	{
+		class StaticMesh;
+	}
+
 	namespace ModelHandling
 	{
 		enum VertexInfo
@@ -49,6 +54,9 @@ namespace Engine
 			//returns TextureID
 			unsigned int CreateTextureCubeMap(std::string i_ArrTextureFaceFileNames[], const unsigned int & i_NumTextureFaces, const unsigned int & i_TextureUnitIndex);
 			unsigned int CreateTextureCubeMap(std::vector<std::string> i_ArrTextureFaceFileNames, const unsigned int & i_NumTextureFaces, const unsigned int & i_TextureUnitIndex);
+
+			//Creates XY Plane with given clip-space coordinates as triangles
+			void CreateXYPlaneClipSpaceTris(Engine::Entity::StaticMesh* i_pPlaneStaticMesh, float i_LeftExtent, float i_RightExtent, float i_BottomExtent, float i_TopExtent);
 
 			static const unsigned int NumPatchVertices = 4;
 
