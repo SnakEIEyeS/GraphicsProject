@@ -10,6 +10,8 @@ uniform mat4 u_Object;
 uniform vec3 u_LightPosition;
 
 out vec4 o_ColorVS;
+out vec4 o_VertexPosition;
+out vec4 o_VertexNormal;
 out vec3 o_VertexTexture;
 out float o_cosTheta;
 out float o_SpecularComponent;
@@ -30,6 +32,10 @@ void main()
 	o_SpecularComponent = dot(HalfVector, VertexNormal);
 	//o_ColorVS = vec4(1.f, 0.f, 0.f, 1.0f);
 	o_ColorVS = transpose(inverse(u_Camera)) * u_Object * vec4(i_Normal, 1.f);
+
+	o_VertexPosition = u_Projection * u_Camera * u_Object * vec4(i_Pos, 1.f);
+	o_VertexNormal = transpose(inverse(u_Camera)) * u_Object * vec4(i_Normal, 1.f);
+	
 
 	o_VertexTexture = i_VertexTexture;
 }

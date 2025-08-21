@@ -14,5 +14,13 @@ namespace Engine
 			}
 			return true;
 		}
+		float DegreesToRadians(const float & i_AngleInDegrees)
+		{
+			return i_AngleInDegrees * PIFloat/180.f;
+		}
+		float RadiansToDegrees(const float & i_AngleInRadians)
+		{
+			return i_AngleInRadians * 180.f/PIFloat;
+		}
 	}
 }

@@ -6,6 +6,7 @@ namespace Engine
 {
 	namespace Lighting
 	{
+		//TODO make PointLight have a GameObject
 		class PointLight
 		{
 		public:

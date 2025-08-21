@@ -17,11 +17,43 @@ namespace Engine
 	namespace Lighting
 	{
 		class PointLight;
+		class SpotLight;
 	}
 
 	namespace Rendering
 	{
 		static cyGLSLProgram* cyGraphicsProgram = nullptr;
+
+		static const char* SceneVertexShaderFile = "res/FinalShaders/PrimarySceneVS.shader";
+		static const char* SceneFragmentShaderFile = "res/FinalShaders/PrimarySceneFS.shader";
+
+		static const char* EdgeDetectionVertexShaderFile = "res/FinalShaders/RenderToScreenPlaneVS.shader";
+		static const char* EdgeDetectionFragmentShaderFile = "res/FinalShaders/EdgeDetectionFS.shader";
+
+		static const char* BlendingWeightsVertexShaderFile = "res/FinalShaders/RenderToScreenPlaneVS.shader";
+		static const char* BlendingWeightsFragmentShaderFile = "res/FinalShaders/BlendingWeightsFS.shader";
+
+		static const char* NeighborhoodBlendingVertexShaderFile = "res/FinalShaders/RenderToScreenPlaneVS.shader";
+		static const char* NeighborhoodBlendingFragmentShaderFile = "res/FinalShaders/NeighborhoodBlendingFS.shader";
+
+		static const char* RenderTextureVertexShaderFile = "res/FinalShaders/RenderToScreenPlaneVS.shader";
+		static const char* RenderTextureFragmentShaderFile = "res/FinalShaders/RenderToScreenPlaneFS.shader";
+
+		static const char* CubeMapTextureVertexShaderFile = "res/CubeMapVS.shader";
+		static const char* CubeMapTextureFragmentShaderFile = "res/CubeMapFS.shader";
+
+		static const char* QuadTessControlShaderFile = "res/QuadTCS.shader";
+		static const char* QuadTessEvalShaderFile = "res/QuadTES.shader";
+
+		static const char* DebugDrawVertexShaderFile = "res/DebugDrawVS.shader";
+		static const char* DebugDrawGeometryShaderFile = "res/DebugDrawGS.shader"; 
+		static const char* DebugDrawFragmentShaderFile = "res/DebugDrawFS.shader";
+
+		static const char* MLAAOnIndicatorTextureFilename = "../Resources/MLAA/MLAA_On_Indicator.png";
+		static const char* MLAAOffIndicatorTextureFilename = "../Resources/MLAA/MLAA_Off_Indicator.png";
+
+		const std::string MLAAAreaTextureFilename = "../Resources/MLAA/AreaMap33.png";
+		
 		
 		struct Color
 		{
@@ -43,13 +75,21 @@ namespace Engine
 		void AnimateClearColor(float i_FrameTime);
 
 		cyGLSLProgram* GetGLProgram();
+		//cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
+		cyGLSLProgram* BuildProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile, 
+			const char* i_GeometryShaderFile = (const char*)nullptr, const char* i_TessControlShaderFile = (const char*)nullptr, const char* i_TessEvaluationShaderFile = (const char*)nullptr);
 		bool BuildAndUseProgram();
+		bool BuildAndUseProgram(const char* i_VertexShaderFile, const char* i_FragmentShaderFile);
 
+		//TODO make PointLight have a GameObject
 		static Engine::Lighting::PointLight* RenderPointLight = nullptr;
 		Engine::Lighting::PointLight& GetRenderPointLight();
 
+		static Engine::Lighting::SpotLight* RenderSpotLight = nullptr;
+		Engine::Lighting::SpotLight& GetRenderSpotLight();
+
 		static const float AmbientConstant = 0.1f;
-		static const float SpecularAlpha = 5.f;
+		static const float SpecularAlpha = 50.f;
 
 		static const char* MaterialAmbientMapFile;
 		static const char* MaterialDiffuseMapFile;
@@ -58,6 +98,8 @@ namespace Engine
 		void SetMaterialDetails(cy::TriMesh* i_pTriMeshObj, int i_MaterialIndex);
 
 		void DecodeTexturePNG(std::string i_TextureFilename, std::vector<unsigned char> & o_ImageData, unsigned int & o_ImageWidth, unsigned int & o_ImageHeight);
+
+		void CreateRenderBuffer(cyGLRenderTexture2D* i_pRenderTexture, bool i_bUseDepthBuffer, int i_NumChannels, GLsizei i_WindowWidth, GLsizei i_WindowHeight, GLuint i_TextureUnit);
 
 		float GetMaxAnisotropicLevel();
 	}
